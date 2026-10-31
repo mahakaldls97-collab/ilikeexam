@@ -1,7 +1,6 @@
 /* ============================================================
-   I LIKE EXAM — MCQ sets (prashn)
-   Ye file site par tabhi download hoti hai jab koi MCQ / quiz / exam page
-   khulta hai. Notes aur baaki data js/data.js me hai.
+   I LIKE EXAM — MCQ sets (admin panel se bani)
+   Site ye file tabhi download karti hai jab koi MCQ/quiz/exam page khule.
    ============================================================ */
 window.QUESTIONS = {
  "rajasthan": [
