@@ -1,0 +1,18 @@
+{
+  "name": "I LIKE EXAM — Rajasthan GK, Notes & Quizzes",
+  "short_name": "I LIKE EXAM",
+  "description": "Notes, MCQ, quiz, district map aur exam-wise test series — Rajasthan aur India ki taiyari ke liye.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f7fa",
+  "theme_color": "#f26522",
+  "lang": "hi",
+  "icons": [
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "categories": ["education", "reference"]
+}
