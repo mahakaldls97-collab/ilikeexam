@@ -1,9 +1,11 @@
 /* I LIKE EXAM — offline cache. Version badhao jab content badle. */
-var V = "ile-v2";
+var V = "ile-v3";
 var CORE = ["./", "./index.html", "./css/style.css", "./js/data.js", "./js/icons.js", "./js/app.js", "./manifest.webmanifest", "./icons/icon.svg"];
 
 /* js/, css/ aur HTML hamesha pehle network se lena, warna data.js me naya
-   data dalne ke baad browser purana cached data dikhata rehta hai. */
+   data dalne ke baad browser purana cached data dikhata rehta hai.
+   questions.js CORE me nahi hai — vo MCQ page khulte hi lazy load hota hai aur
+   usi waqt cache me bhar jata hai, isliye offline me bhi mil jata hai. */
 function isCode(rawUrl) {
   var p = new URL(rawUrl).pathname;
   return /\/(js|css)\//.test(p) || /\.(html?)$/.test(p) || p.endsWith("/");
