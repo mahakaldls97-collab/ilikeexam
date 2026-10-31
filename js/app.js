@@ -533,33 +533,115 @@
   }
 
   /* ---------- static pages ---------- */
+  var MAIL = "iloveexam2026@gmail.com";
   P.about = function () {
-    return "<h1>About Us</h1><p>" + esc(D.site.name) + " ek free study portal hai — Rajasthan aur India ki competitive exam (REET, Patwar, Constable, CET, RAS, Grade-3 Teacher) ki taiyari ke liye notes, MCQ aur quiz.</p>" +
-      "<h2>Kaise kaam karta hai</h2><ul><li>Notes aur baaki content <code>js/data.js</code> me, MCQ sets <code>js/questions.js</code> me hai — code se kuch lena-dena nahi.</li><li>Quiz browser me chalta hai; score phone me save hota hai, kisi server par nahi jata.</li><li>Site offline bhi khul sakti hai (PWA install karne par).</li></ul>" +
-      "<h2>Data policy</h2><p>Yahan ka likha hua content original hai. Factual data (jile, divisions, rajya, samvidhan ke anuched) sarkari aur jan-sansmrutik strot se liya gaya hai.</p>" +
-      '<p><a class="btn ghost" href="#/contact">Contact</a> <a class="btn ghost" href="#/privacy">Privacy</a></p>';
+    return "<h1>About Us</h1>" +
+      "<p><b>I LIKE EXAM</b> ek free study portal hai — Rajasthan aur India ki competitive exam ki taiyari ke liye notes, MCQ, quiz, test series, jile ka map aur short tricks. Site ka maqsad simple hai: ek hi jagah par saaf-suthra, padhne layak aur befaltu bakwaas se bhari hui material mile.</p>" +
+      "<h2>Ye site kis ke liye hai</h2>" +
+      "<p>REET aur Grade-3 Teacher, Patwar, VDO, Rajasthan Police Constable, CET (12th/graduation level), LDC/Junior Accountant, RAS, Police SI, Vanrakshak, Jail Prahari, Gram Sevak, Computer Instructor, Lab Assistant aur aise hi doosre state-level exam. Jin exams me Rajasthan GK, India GK, Samvidhan, Science, Maths, Reasoning, Hindi aur English puchhe jate hain — un sabki taiyari yahan se ho sakti hai.</p>" +
+      "<h2>Yahan kya milta hai</h2>" +
+      "<ul><li><b>Notes</b> — topic-wise, headings aur table ke saath, exam ke point of view se.</li>" +
+      "<li><b>MCQ set</b> — har set ka answer aur chhota explanation, quiz mode me timer ke saath.</li>" +
+      "<li><b>Test series</b> — subject-wise aur exam-wise timed quiz.</li>" +
+      "<li><b>Jile aur rajya</b> — ek page par poora data, talash karne layak table.</li>" +
+      "<li><b>Short tricks aur flashcards</b> — ratne wali cheezein jaldi yaad karne ke liye.</li></ul>" +
+      "<h2>Content kaise banta hai</h2>" +
+      "<p>Har note haath se likha jata hai aur exam ke syllabus ke hisab se baantа hai. Factual aankde (jile, division, samvidhan ke anuched, yojnayein) sarkari website, official notification aur standard reference books se liye jate hain, phir do jagah se cross-check kiye jate hain. Kisi kitaab ka scan ya kisi doosri site ka likha hua content yahan copy nahi kiya jata.</p>" +
+      "<h2>Site kaun chalata hai</h2>" +
+      "<p>Ye ek independent site hai — kisi coaching sansthan, sarkari vibhag ya board se juda hua nahi hai. Ise ek exam-taiyari karne wale ne shuru kiya hai aur abhi bhi khud hi content likhta hai. Isi liye aap yahan apna sujhav bhej sakte ho — jo galat mile wo theek karne ki koshish hoti hai.</p>" +
+      "<h2>Free hai?</h2>" +
+      "<p>Haan. Padhne, quiz khelne aur test dene ke liye na login chahiye, na paisa. Aage chal kar site par vigyapan (ads) aa sakte hain, jisse site chalti rahegi — us waqt bhi content free rahega.</p>" +
+      "<h2>Galti dikhe to</h2>" +
+      "<p>Kisi prashn ka jawab galat lage, purana aankda ho, ya koi link tute — hume likh bhejo. Har message padha jata hai.</p>" +
+      '<p><a class="btn ghost" href="#/contact">Contact</a> <a class="btn ghost" href="#/privacy">Privacy</a> <a class="btn ghost" href="#/disclaimer">Disclaimer</a></p>';
   };
   P.contact = function () {
-    return "<h1>Contact Us</h1><p>Koi galti dikhe, ya naya note add karwana ho to likh bhejo.</p>" +
-      '<form class="f" id="cform"><label class="f">Naam</label><input required name="n">' +
-      "<label class=\"f\">Email / Mobile</label><input required name=\"e\">" +
-      "<label class=\"f\">Sandesh</label><textarea rows=\"5\" required name=\"m\"></textarea>" +
-      '<div class="btnrow"><button class="btn" type="submit">Bhejo</button></div><div class="msg" id="cmsg" hidden>Dhanyavaad! Sandesh save ho gaya — ab email app kholke bhi bhej sakte ho.</div></form>' +
-      '<div class="notice">Ye form abhi browser me save hota hai (localStorage). Real email bhejne ke liye Formspree/EmailJS jaisi service jodni padegi — bolo to jod dunga.</div>';
+    return "<h1>Contact Us</h1>" +
+      "<p>Site se juda koi bhi sawal, sujhav ya shikayat — seedha email par bhejo. Hum khud padhte hain.</p>" +
+      '<h2>Email</h2><p style="font-size:17px"><a href="mailto:' + MAIL + '">' + MAIL + '</a></p>' +
+      "<h2>Kitne din me jawab</h2><p>Aam taur par <b>2-3 din</b> me. Chhutti ke dinon me thoda late ho sakta hai.</p>" +
+      "<h2>Email me kya likhein</h2>" +
+      "<ul><li>Kis page ka sawal hai — page ka link ya note ka naam.</li>" +
+      "<li>Kya galat hai — aur agar pata ho to sahi jawab kya hona chahiye.</li>" +
+      "<li>Naya note/MCQ bhejna hai to uski file ya text.</li></ul>" +
+      '<h2>Yahan se bhejo</h2><p>Neeche form bharo — bhejte hi aapka email app khulega, message pehle se likha hua hoga. Bas <b>Send</b> dabana hai.</p>' +
+      '<form class="f" id="cform"><label class="f" for="cn">Aapka naam</label><input id="cn" name="n" required>' +
+      '<label class="f" for="ce">Aapka email</label><input id="ce" name="e" type="email" required>' +
+      '<label class="f" for="cm">Sandesh</label><textarea id="cm" rows="5" required name="m"></textarea>' +
+      '<div class="btnrow"><button class="btn" type="submit">Email app me kholo</button></div>' +
+      '<div class="msg" id="cmsg" hidden>Email app khul gaya hoga. Nahi khula to upar wale email address par seedha likh bhejo.</div></form>' +
+      '<div class="notice">I LIKE EXAM kabhi bhi paise, OTP, ya bank detail nahi maangta. Koi aapko is site ke naam par paise bhejne ko kahe to wo hum nahi hain — seedha ' + MAIL + ' par batayein.</div>';
   };
   P.contribute = function () {
-    return "<h1>Write for us</h1><p>Apna note ya MCQ set bhejo — sahi format me publish kiya jayega.</p>" +
-      '<div class="tool"><pre style="white-space:pre-wrap;margin:0;font-size:13px">{ q: "Prashn yahan?", o: ["opt A","opt B","opt C","opt D"], a: 0, x: "kyunki…" }</pre>' +
-      "<p style=\"font-size:13px;color:#5c6b7a\"><code>a</code> = sahi option ka number (0 se 3).</p></div>" +
-      '<p><a class="btn" href="#/contact">Bhejo</a></p>';
+    return "<h1>Write for us</h1>" +
+      "<p>Apna note, MCQ set ya short trick bhejo — sahi format me site par aapke naam ke saath publish kiya jayega. Arz yahi hai ki material <b>original</b> ho.</p>" +
+      "<h2>Note ka format</h2>" +
+      "<ul><li><b>Title</b> — ek line me topic (jaise \u201cRajasthan ki Nadiyan\u201d).</li>" +
+      "<li><b>Lambai</b> — 300 se 800 shabd. Lamba hone par topic ke hisab se 2-3 note me baant denge.</li>" +
+      "<li><b>Headings</b> — chhote-chhote hisson me (itihas, mukhya nadiyan, exam point).</li>" +
+      "<li><b>Table</b> — jahan list ho (nadi, udgam sthal, kinare ke jile) wahan table me likho.</li>" +
+      "<li><b>Bhasha</b> — Hindi ya Hinglish, dono chalega. Simple aur seedhi bhasha rakho.</li></ul>" +
+      "<h2>MCQ ka format</h2>" +
+      "<p>Bhejne se pehle is shakl me likh do — hum aage khud site ke format me daal lenge:</p>" +
+      '<div class="tool"><pre style="white-space:pre-wrap;margin:0;font-size:13px">1. Rajasthan ka rajya-pakshi kaunsa hai?\n   A) Mor  B) Godawan  C) Chinkara  D) Sars\n   Ans: B\n   Vyakhya: Godawan (great Indian bustard) 1981 se Rajasthan ka rajya-pakshi hai.</pre></div>' +
+      "<h2>Rules — ye zaroor padh lo</h2>" +
+      "<ul><li>Content <b>aapka khud ka</b> ho. Kisi kitaab, PDF, Telegram channel ya doosri site se copy kiya hua material mat bhejo.</li>" +
+      "<li>Kisi copyrighted kitaab ka scan ya photo mat bhejo.</li>" +
+      "<li>Agar kisi fact ka source sarkari website hai to link sath likh do — jaldi publish hoga.</li>" +
+      "<li>Ek saath 20-50 prashn tak ka set bhejo, poora paper ek baar me nahi.</li></ul>" +
+      "<h2>Credit</h2><p>Publish hone par note ke neeche aapka naam (ya jo naam aap bolo) likha jayega. Abhi hum paise nahi de sakte — ye voluntary kaam hai.</p>" +
+      "<h2>Kaise bhejein</h2><p><a href=\"mailto:" + MAIL + "?subject=Content%20for%20I%20LIKE%20EXAM\">" + MAIL + "</a> par subject me <b>\u201cContent for I LIKE EXAM\u201d</b> likh kar bhejo.</p>" +
+      '<p><a class="btn" href="#/contact">Contact page</a></p>';
   };
   P.privacy = function () {
-    return "<h1>Privacy Policy</h1><ul><li>Koi login data ya personal detail server par nahi bheja jata.</li><li>Quiz score aur contact form phone ke localStorage me rehta hai; site data clear karne ke liye browser settings me storage delete karo.</li><li>Koi third-party ad tracker abhi nahi laga. Ads lagane par ye page update hoga.</li><li>Contact: <a href=\"#/contact\">Contact page</a> se poochh sakte ho.</li></ul>" +
-      "<p>Last updated: " + new Date().toISOString().slice(0, 10) + "</p>";
+    return "<h1>Privacy Policy</h1>" +
+      "<p>Ye page batata hai ki I LIKE EXAM aapki kis information ko kaise use karta hai. Site use karne ka matlab hai ki aap is policy se sehmat hain.</p>" +
+      "<h2>Hum kya save karte hain</h2>" +
+      "<p>Site par koi login, koi account aur koi server-side database nahi hai. Jo cheezein save hoti hain wo <b>sirf aapke browser</b> (localStorage) me rehti hain: quiz ka score aur progress, admin panel ka draft, aur \u2014 agar aap demo login ya contact form bharte ho \u2014 aapka likha hua naam/message. Ye data humare paas nahi jata aur kisi doosre ko nahi dikhta. Browser ki settings se site ka data delete karte hi ye sab mit jata hai.</p>" +
+      "<h2>Cookies</h2>" +
+      "<p>Site khud koi tracking cookie nahi lagati. Hosting provider (Vercel, GitHub Pages) normal server logs rakh sakta hai — jaise IP address, browser ka naam aur page kholne ka samay — security aur speed ke liye.</p>" +
+      "<h2>Vigyapan (Google AdSense)</h2>" +
+      "<p>Site par aage Google AdSense ke ads aa sakte hain. Us surat me:</p>" +
+      "<ul><li>Google aur uske partners cookies ka use karke aapko ads dikhate hain, jo aapki pehle ki visits ke hisab se ho sakte hain.</li>" +
+      "<li>Google advertising cookie ke istemal se aapko is site aur doosri sites par ads dikhaye jate hain.</li>" +
+      "<li>Aap <a href=\"https://www.google.com/settings/ads\" target=\"_blank\" rel=\"noopener\">Google Ads Settings</a> par jaakar personalised ads band kar sakte ho, ya <a href=\"https://www.aboutads.info/choices/\" target=\"_blank\" rel=\"noopener\">aboutads.info</a> par doosre providers ke liye opt out kar sakte ho.</li></ul>" +
+      "<h2>Bachche</h2><p>Ye site 13 saal se chhote bachchon se jaan-boojh kar koi personal detail nahi maangti. Agar kisi abhibhavak ko lage ki bachche ne koi detail di hai to hume likh bhejein, wo hata di jayegi.</p>" +
+      "<h2>Badlav</h2><p>Policy me badlav hone par isi page par nayi tarikh ke saath likha jayega. Ads ya naya feature judne par ye page pehle update hoga.</p>" +
+      "<h2>Sampark</h2><p>Privacy se juda koi sawal ho to <a href=\"mailto:" + MAIL + "\">" + MAIL + "</a> par likh bhejein.</p>" +
+      "<p>Last updated: 31 October 2026</p>";
   };
   P.copyright = function () {
-    return "<h1>Copyright</h1><p>" + esc(D.site.name) + " ke notes, MCQ aur explanations original hain. Bina likhit anumati poora content copy karke doosri site/app par dalna mana hai. Chhota uddharan source link ke sath de sakta hai.</p>" +
-      "<p>Factual sarkari aankde (jile, division, rajya, anuched) public domain hain — inka swastva kisi ek site ka nahi.</p>";
+    return "<h1>Copyright</h1>" +
+      "<p>\u00a9 2026 I LIKE EXAM. Site par likhe gaye notes, MCQ prashn, explanation, tricks aur page ka design — sab original kaam hai.</p>" +
+      "<h2>Kya kar sakte ho</h2>" +
+      "<ul><li>Site ko padhna, quiz khelna aur exam ki taiyari me use karna — bilkul free.</li>" +
+      "<li>Chhota hissa (2-3 line ya ek prashn) \u2014 apne notes, school assignment ya kisi post me \u2014 lekin <b>source ka link zaroor</b> lagana.</li>" +
+      "<li>Link share karna — WhatsApp group, Telegram, doston ko. Iske liye koi anumati ki zaroorat nahi.</li></ul>" +
+      "<h2>Kya nahi kar sakte</h2>" +
+      "<ul><li>Poora note ya poora MCQ set copy karke apni site, app, book, PDF ya paid course me dalna.</li>" +
+      "<li>Content ko badal kar apna batana, ya site ka design copy karke doosri site banana.</li>" +
+      "<li>Automatic tools se site ka poora data utha lena (scraping).</li></ul>" +
+      "<h2>Agar aapka content yahan dikh raha hai</h2>" +
+      "<p>Agar aapko lage ki aapka koi copyrighted kaam bina anumati ke is site par hai, to <a href=\"mailto:" + MAIL + "?subject=Copyright%20notice\">" + MAIL + "</a> par likh bhejein. Email me ye likhna:</p>" +
+      "<ul><li>Us content ka link (site ka pura URL),</li>" +
+      "<li>aapke original kaam ka link ya us par aapka adhikar,</li>" +
+      "<li>aapka naam aur sampark.</li></ul>" +
+      "<p>Jaanch ke baad sahi paaye jane par wo content <b>7 din ke andar</b> hata diya jayega.</p>" +
+      "<h2>Sarkari aankde</h2><p>Jile, division, rajya, samvidhan ke anuched, yojnayein — ye factual aankde hain aur kisi ek site ke maalik nahi. Inka ullekh jaanch-padtal ke baad hi kiya jata hai.</p>";
+  };
+  P.disclaimer = function () {
+    return "<h1>Disclaimer</h1>" +
+      "<p>I LIKE EXAM ek <b>independent</b> exam-taiyari site hai. Ye Rajasthan Sarkar, RSSB, RPSC, RSMSSB, Police Bharti Board, Board of Secondary Education ya kisi bhi sarkari vibhag se judi hui nahi hai aur unki aadhikarik website nahi hai.</p>" +
+      "<h2>Exam aur bharti ki jankari</h2>" +
+      "<p>Yahan di gayi exam date, vacancy, syllabus aur yogyata purani ho sakti hai. Kisi bhi form, fee ya date se pehle <b>official notification aur sarkari website</b> par jaanch karna aapki zimmedari hai. Hum kisi form, document ya date ke bare me final jawab nahi dete.</p>" +
+      "<h2>Content \u201cas is\u201d</h2>" +
+      "<p>Notes aur prashn poori koshish aur jaanch ke saath likhe jate hain, lekin galti ka bilkul na hona hamare hath me nahi. Koi prashn ya tathya galat lage to hume batayein — hum jaldi theek karte hain. Is content par poora bharosa karke kiya gaya koi nuksan humari zimmedari nahi hoga.</p>" +
+      "<h2>Result ki koi guarantee nahi</h2>" +
+      "<p>Site par padhne se exam pass hone, rank aane ya naukri milne ki koi guarantee nahi hai. Ye sirf taiyari me madad karne wala zariya hai.</p>" +
+      "<h2>Bahar ke link</h2>" +
+      "<p>Kahin-kahin doosri websites ke link ho sakte hain (sarkari portal, Google settings). Un sites ke content aur unki policy ke liye hum zimmedar nahi hain.</p>" +
+      "<h2>Vigyapan</h2><p>Site par ads aane par un ads ke product ya service ke liye hum zimmedar nahi honge. Kisi bhi paid course ya app ko kharidne se pehle khud jaanch karein.</p>" +
+      "<p>Sawal ho to <a href=\"#/contact\">Contact page</a> se likh bhejein.</p>";
   };
   P.login = function () {
     var u = store.get("user", null);
@@ -622,6 +704,7 @@
     else if (p[0] === "contribute") out = P.contribute();
     else if (p[0] === "privacy") out = P.privacy();
     else if (p[0] === "copyright") out = P.copyright();
+    else if (p[0] === "disclaimer") out = P.disclaimer();
     else if (p[0] === "login") out = P.login();
     else out = notFound();
     page.innerHTML = out;
@@ -798,14 +881,17 @@
     return (x * 100).toFixed(2) + "/100";
   }
   function wireContact() {
-    $("#cform").onsubmit = function (e) {
+    var cf = $("#cform");
+    if (!cf) return;
+    /* koi backend nahi — form seedha email app me message taiyar karke khol deta hai */
+    cf.onsubmit = function (e) {
       e.preventDefault();
-      var f = new FormData(e.target);
-      var list = store.get("messages", []);
-      list.push({ n: f.get("n"), e: f.get("e"), m: f.get("m"), at: new Date().toISOString() });
-      store.set("messages", list);
+      var f = new FormData(cf);
+      var body = "Naam: " + (f.get("n") || "") + "\nEmail: " + (f.get("e") || "") + "\n\n" + (f.get("m") || "");
+      var a = document.createElement("a");
+      a.href = "mailto:" + MAIL + "?subject=" + encodeURIComponent("Message from I LIKE EXAM site") + "&body=" + encodeURIComponent(body);
+      a.click();
       $("#cmsg").hidden = false;
-      e.target.reset();
     };
   }
   function wireLogin() {
@@ -825,6 +911,19 @@
   $("#siteSearch").addEventListener("search", function () { runSearch(this.value); });
   document.addEventListener("click", function (e) { if (!e.target.closest(".searchbar")) $("#searchResults").hidden = true; });
   window.addEventListener("hashchange", route);
+  /* Copy karne par neeche source line khud jud jati hai — isse content copy hota
+     to hai, par "kiska hai" saath chalta hai. Chhoti copy (naam, option) par
+     kuch nahi badalta, warna padhne wale ko chidh hoti hai. */
+  document.addEventListener("copy", function (e) {
+    if (!e.clipboardData || !window.getSelection) return;
+    var sel = window.getSelection(), txt = String(sel || "");
+    if (txt.replace(/\s/g, "").length < 60 || txt.indexOf("ilikeexam.vercel.app") >= 0) return;
+    var node = sel.anchorNode;
+    var host = node && (node.nodeType === 1 ? node : node.parentNode);
+    if (!host || !host.closest || !host.closest("#main")) return;
+    e.clipboardData.setData("text/plain", txt.replace(/\s+$/, "") + "\n\n\u2014 Source: I LIKE EXAM | https://ilikeexam.vercel.app");
+    e.preventDefault();
+  });
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest(".backbtn");
     if (!b) return;
