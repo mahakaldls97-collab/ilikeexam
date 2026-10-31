@@ -118,6 +118,17 @@ window.QUESTIONS = {
      ],
      "a": 0,
      "x": "200 siatein; Lok Sabha 25 aur Rajya Sabha 10."
+    },
+    {
+     "q": "",
+     "o": [
+      "",
+      "",
+      "",
+      ""
+     ],
+     "a": 0,
+     "x": ""
     }
    ]
   },
@@ -1375,81 +1386,6 @@ window.QUESTIONS = {
      ],
      "a": 0,
      "x": "Criminal Law (Amendment) Act 2013."
-    }
-   ]
-  }
- ],
- "crime_wc": [
-  {
-   "id": "wc-set1",
-   "title": "Women & Child Set 1",
-   "exam": "constable",
-   "qs": [
-    {
-     "q": "POCSO Act me 'balak' ki umra kya hai?",
-     "o": [
-      "15 varsh se kam",
-      "16 varsh se kam",
-      "18 varsh se kam",
-      "14 varsh se kam"
-     ],
-     "a": 2,
-     "x": "18 varsh se kam umra."
-    },
-    {
-     "q": "Childline ka number?",
-     "o": [
-      "1091",
-      "1098",
-      "181",
-      "100"
-     ],
-     "a": 1,
-     "x": "1098; mahila helpline 1091."
-    },
-    {
-     "q": "Dahej Pratishedhak Kanoon kis varsh ka hai?",
-     "o": [
-      "1955",
-      "1961",
-      "1976",
-      "1986"
-     ],
-     "a": 1,
-     "x": "Dowry Prohibition Act 1961."
-    },
-    {
-     "q": "Gharelu hinsa se sanrakshan ka kanoon?",
-     "o": [
-      "DV Act 2005",
-      "POSH 2013",
-      "MTP 1971",
-      "JJ Act 2015"
-     ],
-     "a": 0,
-     "x": "Protection of Women from Domestic Violence Act 2005."
-    },
-    {
-     "q": "Vidhan Sabha me mahila aarakshan ka kanoon?",
-     "o": [
-      "105th sanshodhan",
-      "Nari Shakti Vandan Adhiniyam 2023",
-      "73rd sanshodhan",
-      "86th sanshodhan"
-     ],
-     "a": 1,
-     "x": "1/3 aarakshan, census aur delimitation ke baad laagu."
-    },
-    {
-     "q": "CWC ka full form?",
-     "o": [
-      "Child Welfare Committee",
-      "Child Welfare Council",
-      "Child Wellbeing Centre",
-      "Committee for Women and Child"
-     ],
-     "a": 0,
-     "x": "Zila star par banta hai (JJ Act)."
     }
    ]
   }

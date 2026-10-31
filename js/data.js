@@ -14,32 +14,10 @@ window.DATA = {
    "name": "Rajasthan GK",
    "hi": "राजस्थान अध्ययन",
    "icon": "🏰",
-   "notes": [
-    {
-     "id": "raj-geo",
-     "title": "Rajasthan ka Bhugol — Poori Parichay",
-     "hi": "राजस्थान का भूगोल",
-     "mins": 6,
-     "html": "\n\u003ch3>Kshetra aur sthiti\u003c/h3>\n\u003cp>Rajasthan bharat ka \u003cb>kshetraफल me sabse bada rajya\u003c/b> hai — lagbhag 3.42 lakh varg km. Ye des ke uttar-pashchim me hai aur iski sima Pakistan (Punjab aur Sindh prant) se milti hai.\u003c/p>\n\u003cdl class=\"kv\">\n  \u003cdt>Sthapna\u003c/dt>\u003cdd>30 March 1949 (Matsya Sangh ka vilayan)\u003c/dd>\n  \u003cdt>Raj Diwas\u003c/dt>\u003cdd>30 March\u003c/dd>\n  \u003cdt>Rajdhani\u003c/dt>\u003cdd>Jaipur (Pink City)\u003c/dd>\n  \u003cdt>Jile / Divisions\u003c/dt>\u003cdd>41 jile, 7 divisions (2025 ke baad)\u003c/dd>\n  \u003cdt>Lok Sabha / Rajya Sabha\u003c/dt>\u003cdd>25 / 10\u003c/dd>\n  \u003cdt>Vidhan Sabha\u003c/dt>\u003cdd>200 siatein\u003c/dd>\n  \u003cdt>Uchchatam shikhar\u003c/dt>\u003cdd>Guru Shikhar, Mount Abu (1722 m)\u003c/dd>\n\u003c/dl>\n\u003cdiv class=\"box\">\u003cb>Padosi:\u003c/b> Uttar-pashchim me Pakistan, uttar me Punjab aur Haryana, purab me Uttar Pradesh, dakshin-purab me Madhya Pradesh aur dakshin-pashchim me Gujarat. Sabse lambi sima Madhya Pradesh ke sath.\u003c/div>\n\u003ch3>Prakritik bhatte\u003c/h3>\n\u003cul>\n  \u003cli>\u003cb>Thar ka marusthal\u003c/b> — pashchimi Rajasthan, sanstharit marusthal.\u003c/li>\n  \u003cli>\u003cb>Aravalli parvatmala\u003c/b> — bharat ki sabse purani fold mountain range, state ko do bhaagon me baantti hai.\u003c/li>\n  \u003cli>\u003cb>Hadoti aur Mewar ka patharili zameen\u003c/b> — purab-dakshin me chambal-banas ki ghati.\u003c/li>\n  \u003cli>\u003cb>South-eastern plain\u003c/b> — ghaggar aur chhote nadi-marg.\u003c/li>\n\u003c/ul>\n\u003ch3>Nadiyan\u003c/h3>\n\u003cul>\n  \u003cli>\u003cb>Banas\u003c/b> — rajasthan ki sabse lambi nadi, jo poori state ke andar behti hai (\"Rajasthan ki Lekhwani\").\u003c/li>\n  \u003cli>\u003cb>Luni\u003c/b> — state ki akeli khare paani ki nadi, jo sirf Rajasthan me behkar Rann of Kutch me khatam hoti hai.\u003c/li>\n  \u003cli>\u003cb>Chambal\u003c/b> — Yamuna ki sahayak, ravine erosion (badlands) ke liye mashhoor.\u003c/li>\n  \u003cli>\u003cb>Mahi, Sabarmati, Mahi ka muhana, Betw, Kali Sindh, Parvati, Manas, Ghaggar\u003c/b> — baaki mukhya jal-pravah.\u003c/li>\n\u003c/ul>\n\u003ch3>Sarovar\u003c/h3>\n\u003cul>\n  \u003cli>\u003cb>Sambhar\u003c/b> (Nagaur/Ajmer/Jaipur) — bharat ki sabse badi inland salt lake.\u003c/li>\n  \u003cli>\u003cb>Jaipur ke jal-sarovar\u003c/b> — Man Sagar, Galta; \u003cb>Udaipur\u003c/b> — Pichola, Fateh Sagar (isliye \"City of Lakes\").\u003c/li>\n  \u003cli>\u003cb>Kanjhal\u003c/b> (Bharatpur) aur \u003cb>Chhapar\u003c/b> (Jaipur) — pakshi-parikshon ke liye mahatvapurn.\u003c/li>\n\u003c/ul>"
-    },
-    {
-     "id": "raj-culture",
-     "title": "Rajasthan ki Kala, Sanskriti aur Tyohar",
-     "hi": "कला एवं संस्कृति",
-     "mins": 5,
-     "html": "\n\u003ch3>Rajya-chinh\u003c/h3>\n\u003cdl class=\"kv\">\n  \u003cdt>Pashu\u003c/dt>\u003cdd>Chinkara (Indian Gazelle)\u003c/dd>\n  \u003cdt>Pakshi\u003c/dt>\u003cdd>Godawan (Great Indian Bustard)\u003c/dd>\n  \u003cdt>Vriksh\u003c/dt>\u003cdd>Khejri\u003c/dd>\n  \u003cdt>Pushp\u003c/dt>\u003cdd>Rohida\u003c/dd>\n  \u003cdt>Krida\u003c/dt>\u003cdd>Polo (Pushkar ka polo ground Guinness list me)\u003c/dd>\n  \u003cdt>Sarisp\u003c/dt>\u003cdd>Goh (Monitor Lizard)\u003c/dd>\n\u003c/dl>\n\u003ch3>Lok nritya\u003c/h3>\n\u003cul>\n  \u003cli>\u003cb>Ghoomar\u003c/b> — Mewar/Marwar ki ghoomar, aurton ka samuhik nritya.\u003c/li>\n  \u003cli>\u003cb>Kalbeliya\u003c/b> — Saptaswara jati; UNESCO ki Intangible Cultural Heritage list me (2010).\u003c/li>\n  \u003cli>\u003cb>Bhavai\u003c/b> — maathe par ghate/teerate rakhar nritya; \u003cb>Gair\u003c/b> — Mewar ka dandiya-jaisa nritya; \u003cb>Kachhi Ghodi\u003c/b> — Braj/Hadoti.\u003c/li>\n\u003c/ul>\n\u003ch3>Sangeet\u003c/h3>\n\u003cp>Manganiyar aur Laganer (Langhiya) — Marwar ke paramparik gharane. Bhairon Raval (Bhatiana) aur Ghevar ke gait kinchon ke liye jaane jaate hain.\u003c/p>\n\u003ch3>Chitrashaili (schools of painting)\u003c/h3>\n\u003cul>\n  \u003cli>\u003cb>Mewar\u003c/b> — dharmik aur veer ras, Rajasthani miniatures ki sabse purani shaili.\u003c/li>\n  \u003cli>\u003cb>Marwar\u003c/b> — tej rang, Osian aur Nagaur ki deewarein.\u003c/li>\n  \u003cli>\u003cb>Bundi\u003c/b> — \"Chataen ka Mahal\" aur \"Badal Mahal\" ke chitr.\u003c/li>\n  \u003cli>\u003cb>Kishangarh\u003c/b> — Bani Thani (\"bharat ki Monalisa\"), madhyam avayav.\u003c/li>\n  \u003cli>\u003cb>Phad\u003c/b> — Shahpura (Bhilwara) me kapdas par Pabuji ki parikatha.\u003c/li>\n\u003c/ul>\n\u003ch3>Hastakala aur GI tag\u003c/h3>\n\u003cp>Jaipur ka blue pottery, Sanganer/Bagru ka block print, Sikar ka bandhej, Kota kadoria, Jodhpur ke mojari, Bikaneri bhujia, Makrana ka marble (Taj Mahal ki sangemarmar), Nathdwara ki pichhwai, Sojat ki mehandi.\u003c/p>\n\u003ch3>Mele\u003c/h3>\n\u003cul>\n  \u003cli>\u003cb>Pushkar Mela\u003c/b> (Kartik Purnima) — othon ka mela aur Brahma mandir.\u003c/li>\n  \u003cli>\u003cb>Desert Festival\u003c/b> — Jaisalmer, February.\u003c/li>\n  \u003cli>\u003cb>Sahapakh ka Mela\u003c/b> — Bansiwar (Bhilwara), Asia ka sabse bada pashu-mela.\u003c/li>\n  \u003cli>\u003cb>Gangaur\u003c/b> (Chaitra), \u003cb>Teej\u003c/b> (Shravan), \u003cb>Ghmar\u003c/b> (Bharatpur).\u003c/li>\n\u003c/ul>"
-    },
-    {
-     "id": "raj-forts",
-     "title": "Kile, Mahal aur Virasat Sthal",
-     "hi": "दुर्ग एवं विरासत",
-     "mins": 5,
-     "html": "\n\u003ch3>UNESCO World Heritage\u003c/h3>\n\u003cp>2013 me \"Hill Forts of Rajasthan\" ke naam se 6 kile UNESCO list me daale gaye: \u003cb>Chittor, Kumbhalgarh, Ranthambore, Sissingh, Jaigarh aur Amer\u003c/b>. Inke alawa Jantar Mantar (Jaipur, 2010) aur Keoladeo (Bharatpur, 1985) bhi World Heritage hain.\u003c/p>\n\u003ch3>Mukhya kile\u003c/h3>\n\u003ctable class=\"tb\">\u003ctr>\u003cth>Kila\u003c/th>\u003cth>Jila\u003c/th>\u003cth>Yaad rakhne layak\u003c/th>\u003c/tr>\n\u003ctr>\u003ctd>Chittorgarh\u003c/td>\u003ctd>Chittorgarh\u003c/td>\u003ctd>Bharat ka sabse bada kila; Kirti Stambha aur Vijay Stambha\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Kumbhalgarh\u003c/td>\u003ctd>Rajsamand\u003c/td>\u003ctd>Maharana Kumbha ka banaya; 36 km lambi deewar\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Ranthambore\u003c/td>\u003ctd>Sawai Madhopur\u003c/td>\u003ctd>Bakumain + vyaghra abhayaranya\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Mehrangarh\u003c/td>\u003ctd>Jodhpur\u003c/td>\u003ctd>Rao Jodha, 1459; 5 kile ki deewarein\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Sonar Qila\u003c/td>\u003ctd>Jaisalmer\u003c/td>\u003ctd>\"Living fort\" — aaj bhi log rehte hain\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Amer / Jaigarh\u003c/td>\u003ctd>Jaipur\u003c/td>\u003ctd>Man Singh I; Jaigarh me duniya ka sabse bada topkhana pahiya\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Gagron\u003c/td>\u003ctd>Sikar\u003c/td>\u003ctd>Rajput-Maratha architecture ka mishran\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Bhatner (Hanumangarh)\u003c/td>\u003ctd>Hanumangarh\u003c/td>\u003ctd>Bharat ke sabse purane kilon me se ek\u003c/td>\u003c/tr>\n\u003c/table>\n\u003ch3>Any mahatvapurn sthal\u003c/h3>\n\u003cul>\n  \u003cli>\u003cb>Hawa Mahal\u003c/b> (1799, Sawai Pratap Singh) — 953 jharokhe.\u003c/li>\n  \u003cli>\u003cb>Jantar Mantar\u003c/b> — Sawai Jai Singh II ka rashtriy vigyan vedhshala.\u003c/li>\n  \u003cli>\u003cb>Abhaneri ka Chand Baori\u003c/b> (Dausa) — duniya ke sabse gehre seedhi-dar stepwell me se ek.\u003c/li>\n  \u003cli>\u003cb>Dilwara ke Jain mandir\u003c/b> (Sirohi) aur \u003cb>Ranakpur\u003c/b> (Pali) — 1444 marble ke amb.\u003c/li>\n  \u003cli>\u003cb>Desert National Park\u003c/b> (Jaisalmer) — Godawan ka mukhya vasasthan.\u003c/li>\n\u003c/ul>"
-    }
-   ],
+   "notes": [],
    "sets": [],
    "nsets": 2,
-   "nq": 18
+   "nq": 19
   },
   {
    "id": "india",
@@ -286,24 +264,6 @@ window.DATA = {
      "hi": "नए कानून",
      "mins": 4,
      "html": "\n\u003cp>1 July 2024 se teen purane kanoon ki jagah teen naye sanhita laagu ho gayi:\u003c/p>\n\u003ctable class=\"tb\">\u003ctr>\u003cth>Purana\u003c/th>\u003cth>Naya\u003c/th>\u003c/tr>\n\u003ctr>\u003ctd>Indian Penal Code, 1860 (IPC)\u003c/td>\u003ctd>Bharatiya Nyaya Sanhita, 2023 (BNS)\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Code of Criminal Procedure, 1973 (CrPC)\u003c/td>\u003ctd>Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS)\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Indian Evidence Act, 1872\u003c/td>\u003ctd>Bharatiya Sakshya Adhiniyam, 2023 (BSA)\u003c/td>\u003c/tr>\n\u003c/table>\n\u003cdiv class=\"box\">IPC 1860 me Lord Macaulay ki adhyakshata me bani samvidhanik angrezi kanoon ki devali thi; naye sanhitaon me anuchedon ka number punarrang hua hai — exam me purana/new dono puchhe jaate hain.\u003c/div>\n\u003ch3>Mahatvapurn parivartan\u003c/h3>\n\u003cul>\n  \u003cli>Community service ki saza (petty offences) pariyojit.\u003c/li>\n  \u003cli>Organised crime aur terrorist act ke liye alag prakriti.\u003c/li>\n  \u003cli>SOP/FRS — zero FIR ki vidhiyata, e-FIR.\u003c/li>\n  \u003cli>Mahilaon par apradh ke mamle me sakht saza.\u003c/li>\n  \u003cli>Custody remand ki avadhi me chhote badlav.\u003c/li>\n\u003c/ul>\n\u003ch3>Any mukhya kanoon\u003c/h3>\n\u003cul>\n  \u003cli>POCSO Act, 2012 — 18 varsh se kam balak/balikaon ka yon-apradh se sanrakshan.\u003c/li>\n  \u003cli>Protection of Women from Domestic Violence Act, 2005.\u003c/li>\n  \u003cli>Sexual Harassment of Women at Workplace Act, 2013 — Vishaka judgment (1997) ki guidelines par aadhrit.\u003c/li>\n  \u003cli>SC/ST (Prevention of Atrocities) Act, 1989.\u003c/li>\n  \u003cli>NDPS Act, 1985 · Prevention of Money Laundering Act (PMLA), 2002.\u003c/li>\n\u003c/ul>"
-    }
-   ],
-   "sets": [],
-   "nsets": 1,
-   "nq": 6
-  },
-  {
-   "id": "crime_wc",
-   "name": "Crime Against Women & Child",
-   "hi": "स्त्री एवं बाल अपराध",
-   "icon": "🛡️",
-   "notes": [
-    {
-     "id": "wc-acts",
-     "title": "Mahila aur Balak Sanrakshan Kanoon",
-     "hi": "कानून",
-     "mins": 4,
-     "html": "\n\u003ctable class=\"tb\">\u003ctr>\u003cth>Kanoon\u003c/th>\u003cth>Mukhya baat\u003c/th>\u003c/tr>\n\u003ctr>\u003ctd>Dowry Prohibition Act, 1961\u003c/td>\u003ctd>Dahej lena-dena apradh; minimum 5 varsh saza ya 15,000 ka jurmana\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Indecent Representation of Women Act, 1986\u003c/td>\u003ctd>Prakashan/vitran me ashalin pratimandalan par pabandi\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Protection of Women from Domestic Violence Act, 2005\u003c/td>\u003ctd>Grihasth himsha; Protection Officer, Magistrate, residence ka adhikar\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>POCSO Act, 2012\u003c/td>\u003ctd>Gender-neutral nahi (bachcha koi bhi); mandatory reporting; special court; child-friendly trial\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Juvenile Justice Act, 2015 (2021 amendment)\u003c/td>\u003ctd>16-18 umra ko \"heinous offence\" me adult trial ki sambhavna; CWC/JJB\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Prohibition of Child Marriage Act, 2006\u003c/td>\u003ctd>Kanya 18, var 21 varsh; kelasi adhikari\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Maternity Benefit (Amendment) Act, 2017\u003c/td>\u003ctd>Crèche suvidha, 26 hafte chhutti\u003c/td>\u003c/tr>\n\u003ctr>\u003ctd>Nari Shakti Vandan Adhiniyam, 2023\u003c/td>\u003ctd>LS aur Vidhan Sabha me mahilaon ke liye 1/3 aarakshan\u003c/td>\u003c/tr>\n\u003c/table>\n\u003ch3>Sahayata number\u003c/h3>\n\u003cul>\n  \u003cli>1091 — Mahila helpline · 181 — State women helpline\u003c/li>\n  \u003cli>1098 — Childline · 112 — Emergency\u003c/li>\n  \u003cli>NIRBHAYA Fund — bal-atyachar pidit ki madad\u003c/li>\n\u003c/ul>"
     }
    ],
    "sets": [],
