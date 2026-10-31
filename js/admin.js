@@ -825,8 +825,82 @@
     k.res.forEach(function (r) { ul.insertAdjacentHTML("beforeend", '<li class="' + r[0] + '">' + r[1] + "</li>"); });
     chk.appendChild(ul); main.appendChild(chk);
 
-    var act = card("1 · Dono nayi files download karo");
-    act.insertAdjacentHTML("beforeend", '<p class="adm-lead">Data do files me banta hai — <b>donoi</b> download karo. Button dabate hi file aapke computer ke Download folder me aa jayegi.</p>');
+    /* ---------- ek click publish (api/publish.js ke through) ---------- */
+    var PKEY = "ile:pub:pass";
+    var savedPass = ""; try { savedPass = localStorage.getItem(PKEY) || ""; } catch (e) {}
+    var pc = card("Ek click me live karo", "Button dabao — dono files GitHub par ek hi commit me chali jayengi, Vercel khud site bana dega (40–60 second).");
+    var prow = document.createElement("div"); prow.className = "adm-btnrow";
+    var pin = document.createElement("input");
+    pin.type = "password"; pin.className = "adm-in"; pin.value = savedPass;
+    pin.placeholder = "Publish passcode"; pin.autocomplete = "current-password";
+    pin.style.maxWidth = "300px"; pin.style.flex = "1 1 200px";
+    var goBtn = btn("Publish karo — site par bhejo", "", function () { publish(); });
+    prow.appendChild(pin); prow.appendChild(goBtn); pc.appendChild(prow);
+    var pm = document.createElement("p"); pm.className = "adm-lead"; pm.style.minHeight = "18px"; pm.style.margin = "8px 0 0";
+    pc.appendChild(pm);
+    main.appendChild(pc);
+
+    var busy = false;
+    function say(t, kind) {
+      pm.textContent = t || "";
+      pm.style.fontWeight = kind ? "800" : "";
+      pm.style.color = kind === "bad" ? "#b91c1c" : kind === "ok" ? "#166534" : "";
+    }
+    function publish() {
+      if (busy) return;
+      var host = location.hostname;
+      if (host !== "ilikeexam.vercel.app" && !/^(localhost|127\.0\.0\.1)$/.test(host)) {
+        say("Ye button sirf https://ilikeexam.vercel.app/admin.html par chalta hai.", "bad");
+        return;
+      }
+      var pass = pin.value.trim();
+      if (!pass) { say("Publish passcode daalo.", "bad"); pin.focus(); return; }
+      var bad = k.res.filter(function (x) { return x[0] === "bad"; }).length;
+      if (bad && !confirm(bad + " dikkat hain. Fir bhi publish karna hai?")) return;
+      var dataTxt = buildFile(), qTxt = buildQFile();
+      busy = true; goBtn.disabled = true;
+      say("GitHub par bheja ja raha hai…");
+      fetch("/api/publish", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ pass: pass, files: { "js/data.js": dataTxt, "js/questions.js": qTxt } })
+      })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; });
+        })
+        .then(function (r) {
+          if (!r.ok || !r.j.ok) throw new Error(r.j.error || "Server ne jawab nahi diya — /api/publish live hai ya nahi, check karo");
+          try { localStorage.setItem(PKEY, pass); } catch (e) {}
+          say("GitHub par commit ho gaya (" + r.j.commit + "). Site build ho rahi hai…", "ok");
+          flashStatus("Publish ho gaya — build chalu", "saved");
+          var t0 = Date.now();
+          (function poll() {
+            fetch("https://ilikeexam.vercel.app/js/data.js?cb=" + Date.now(), { cache: "no-store" })
+              .then(function (x) { return x.text(); })
+              .then(function (txt) {
+                if (txt === dataTxt) {
+                  say("Live! Naya data site par pahunch gaya. Site khol ke Ctrl+Shift+R dabao.", "ok");
+                  flashStatus("Site live ho gayi", "saved");
+                  busy = false; goBtn.disabled = false; return;
+                }
+                if (Date.now() - t0 > 150000) {
+                  say("Commit ho gaya, par build slow hai — 1 minute baad site khol ke dekho.", "ok");
+                  busy = false; goBtn.disabled = false; return;
+                }
+                say("Site build ho rahi hai… " + Math.round((Date.now() - t0) / 1000) + "s");
+                setTimeout(poll, 5000);
+              })
+              .catch(function () { setTimeout(poll, 5000); });
+          })();
+        })
+        .catch(function (e) {
+          busy = false; goBtn.disabled = false;
+          say("Publish nahi hua: " + e.message, "bad");
+        });
+    }
+
+    var act = card("Ya manually: dono files download karo");
+    act.insertAdjacentHTML("beforeend", '<p class="adm-lead">Data do files me banta hai — <b>dono</b> download karo. Button dabate hi file aapke computer ke Download folder me aa jayegi.</p>');
     var r1 = document.createElement("div"); r1.className = "adm-btnrow";
     function guard() {
       var bad = k.res.filter(function (x) { return x[0] === "bad"; }).length;
@@ -871,20 +945,12 @@
     act.appendChild(r1);
     main.appendChild(act);
 
-    var st = card("2 · Site ke folder me dono files badlo");
-    st.insertAdjacentHTML("beforeend", '<ol class="adm-steps">' +
-      "<li>Apne site ke folder me <code>js</code> naam ka folder kholo.</li>" +
-      "<li>Purani <code>data.js</code> hataa kar nayi <code>data.js</code> rakh do.</li>" +
-      "<li>Usi tarah <code>questions.js</code> bhi rakh do (prashn isi me hain).</li>" +
-      "<li><b>admin.html aur admin.css/admin.js ko folder me mat chhodo</b> agar public site par nahi chahiye — ya inhe <code>gh8x-admin</code> jaisa naam de do.</li></ol>");
-    main.appendChild(st);
-
-    var st2 = card("3 · Publish / deploy");
+    var st2 = card("Manual tareeka: dono files GitHub par upload karo");
     st2.insertAdjacentHTML("beforeend", '<ol class="adm-steps">' +
-      "<li>GitHub par repo kholo → <code>js</code> folder → <b>Add file → Upload files</b> → nayi <code>data.js</code> chuno → <b>Replace</b> → <b>Commit changes</b>.</li>" +
-      "<li>Yahi dobara karke <code>questions.js</code> upload karo → Commit.</li>" +
-      "<li>GitHub Pages aur Vercel apne aap nayi baar site bana denge (30–60 second).</li>" +
-      "<li>Site khol kar <b>Ctrl+Shift+R</b> dabao — nahi to purana data dikhega.</li></ol>" +
+      "<li>Ye address kholo (address bar me paste karo): <code>github.com/mahakaldls97-collab/ilikeexam/upload/main/js</code></li>" +
+      "<li>Page par <b>choose your files</b> dabao → dono nayi files ek saath chuno → <b>Open</b>.</li>" +
+      "<li>Neeche <b>Commit changes</b> dabao. Purani files hain, isliye GitHub <b>Replace</b> poochhega — haan dabao.</li>" +
+      "<li>30–60 second ruko, phir site khol kar <b>Ctrl+Shift+R</b> dabao — nahi to purana data dikhega.</li></ol>" +
       '<div class="adm-note">Ye kadam aapko khud karne hain — aapke account ka password main mangta nahi aur na hi kiya ja sakta hai. Panel ka kaam files taiyar karke dena tak hi hai.</div>');
     main.appendChild(st2);
 
