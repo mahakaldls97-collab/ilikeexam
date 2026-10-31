@@ -4,12 +4,38 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Admin — I LIKE EXAM data panel</title>
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/admin.css">
+<style>
+.adm-lock{position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:linear-gradient(160deg,#fff7ed,#eef2ff)}
+.adm-lock[hidden]{display:none!important}
+.adm-lock-card{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:10px;
+  background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px 20px;text-align:center;
+  box-shadow:0 18px 40px rgba(2,6,23,.14)}
+.adm-lock-card b{font-size:17px;letter-spacing:.02em}
+.adm-lock-card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.45}
+.adm-lock-card .adm-in{text-align:center;letter-spacing:.2em;font-weight:800}
+.adm-lock-card .adm-btn{width:100%;min-height:44px}
+.adm-lock-card .adm-lock-msg{min-height:18px;font-size:13px;font-weight:800;color:#b91c1c}
+body.adm-locked>*:not(.adm-lock){display:none!important}
+</style>
 </head>
-<body class="adm">
+<body class="adm adm-locked">
+
+<div class="adm-lock" id="admLock">
+  <form class="adm-lock-card" id="admLockForm" autocomplete="off">
+    <img src="icons/icon-192.png" alt="" width="44" height="44">
+    <b>I LIKE EXAM — Admin</b>
+    <p>Ye panel sirf site ke malik ke liye hai. Passcode daalo.</p>
+    <input class="adm-in" id="admPass" type="password" inputmode="text" autocomplete="current-password"
+           placeholder="Passcode" aria-label="Passcode" required>
+    <button class="adm-btn" type="submit">Kholo</button>
+    <p class="adm-lock-msg" id="admLockMsg" role="alert"></p>
+  </form>
+</div>
 
 <header class="adm-top">
   <div class="wrap adm-top-inner">
@@ -18,6 +44,7 @@
     <div class="adm-status" id="admStatus">Khul raha hai…</div>
     <div class="adm-top-actions">
       <a class="adm-btn ghost" href="index.html" target="_blank" rel="noopener">Site kholo</a>
+      <button class="adm-btn ghost" type="button" id="admLockBtn" title="Is device par panel band karo">Lock</button>
     </div>
   </div>
 </header>
@@ -28,14 +55,77 @@
 
 <footer class="adm-foot">
   <div class="wrap">
-    <p><b>Ye panel online nahi chalta.</b> Aapke browser me hi kaam karta hai — isliye iska koi password nahi hai aur koi server nahi.
-    Likha hua data turant <em>draft</em> me save hota hai (sirf isi computer ke isi browser me). Duniya ko tab dikhega jab aap
-    <b>Publish</b> tab se <code>data.js</code> aur <code>questions.js</code> download karke apni site ke <code>js</code> folder me purani files ki jagah rakh kar deploy karoge.</p>
+    <p><b>Ye panel online nahi chalta.</b> Aapke browser me hi kaam karta hai — koi server nahi, koi database nahi.
+    Isliye ye site ko bhi nahi badal sakta: yahan likha data turant <em>draft</em> me save hota hai (sirf isi computer ke isi browser me).
+    Duniya ko tab dikhega jab aap <b>Publish</b> tab se <code>data.js</code> aur <code>questions.js</code> download karke
+    apni site ke <code>js</code> folder me purani files ki jagah rakh kar deploy karoge.</p>
   </div>
 </footer>
 
-<script src="js/data.js"></script>
-<script src="js/questions.js"></script>
-<script src="js/admin.js"></script>
+<script>
+/* Panel ka passcode taala. Naya passcode chahiye to neeche CODE ki value badal do.
+   Dhyan rahe: static site par ye asli taala nahi ban sakta — code har browser me
+   aata hai, isliye aaise-hi ghoomne wale ko rokta hai, jaan-boojh ke todne wale ko nahi. */
+(function () {
+  var CODE = "ILX2026";
+  var KEY = "ile:adm:ok";
+  var lock = document.getElementById("admLock");
+  var form = document.getElementById("admLockForm");
+  var inp = document.getElementById("admPass");
+  var msg = document.getElementById("admLockMsg");
+  var btn = form.querySelector("button");
+  var tries = 0, timer = null;
+
+  function remembered() { try { return localStorage.getItem(KEY) === "1"; } catch (e) { return false; } }
+
+  function load() {
+    lock.hidden = true;
+    document.body.classList.remove("adm-locked");
+    var lockBtn = document.getElementById("admLockBtn");
+    if (lockBtn) lockBtn.onclick = function () {
+      try { localStorage.removeItem(KEY); } catch (e) {}
+      location.reload();
+    };
+    var files = ["js/data.js", "js/questions.js", "js/admin.js"];
+    (function next(i) {
+      if (i >= files.length) return;
+      var s = document.createElement("script");
+      s.src = files[i];
+      s.async = false;
+      s.onload = function () { next(i + 1); };
+      s.onerror = function () { msg.textContent = "File load nahi hui: " + files[i]; };
+      document.body.appendChild(s);
+    })(0);
+  }
+
+  if (remembered()) { load(); return; }
+
+  form.onsubmit = function (e) {
+    e.preventDefault();
+    if (timer) return;
+    if (inp.value.trim().toUpperCase() === CODE) {
+      try { localStorage.setItem(KEY, "1"); } catch (err) {}
+      load();
+      return;
+    }
+    tries++;
+    inp.value = "";
+    if (tries < 3) { msg.textContent = "Galat passcode."; return; }
+    var left = 15;
+    btn.disabled = true;
+    msg.textContent = "Galat passcode. " + left + "s ruko…";
+    timer = setInterval(function () {
+      left--;
+      if (left <= 0) {
+        clearInterval(timer); timer = null;
+        btn.disabled = false; msg.textContent = ""; tries = 0;
+      } else {
+        msg.textContent = "Galat passcode. " + left + "s ruko…";
+      }
+    }, 1000);
+  };
+  inp.focus();
+})();
+</script>
 </body>
 </html>
