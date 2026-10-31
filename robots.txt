@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin.css
+
+# Bulk-scraping / AI training bots — content copy karne se rokne ke liye
+User-agent: GPTBot
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+User-agent: ClaudeBot
+Disallow: /
+User-agent: PerplexityBot
+Disallow: /
+User-agent: Bytespider
+Disallow: /
+User-agent: Amazonbot
+Disallow: /
+
+Sitemap: https://ilikeexam.vercel.app/sitemap.xml
