@@ -131,7 +131,8 @@
 
   /* ---------- shared bits ---------- */
   function crumb(parts) {
-    return '<div class="crumb">' + parts.map(function (p, i) {
+    var up = parts.length > 1 ? parts[parts.length - 2][0] : "#/";
+    return '<div class="crumb"><button type="button" class="backbtn" data-up="' + esc(up) + '" aria-label="Pichhle page par jao">&lsaquo; Back</button>' + parts.map(function (p, i) {
       return i === parts.length - 1 ? esc(p[1]) : '<a href="' + p[0] + '">' + esc(p[1]) + "</a> › ";
     }).join("") + "</div>";
   }
@@ -574,8 +575,26 @@
   }
 
   /* ---------- router ---------- */
+  /* "Back" button ke liye apni chhoti list — browser ke back se alag, isliye ye
+    kabhi site se bahar nahi le jati. Pehla page direct khula ho to button
+    khud parent par chala jata hai. */
+  var BACK = [], LAST = "", SKIP_PUSH = false;
+  function trackBack(cur) {
+    if (cur === LAST) return;
+    if (SKIP_PUSH) { SKIP_PUSH = false; LAST = cur; return; }
+    if (BACK.length && BACK[BACK.length - 1] === cur) { BACK.pop(); LAST = cur; return; }
+    if (LAST) { BACK.push(LAST); if (BACK.length > 25) BACK.shift(); }
+    LAST = cur;
+  }
+  function goBack(up) {
+    var t = BACK.length ? BACK.pop() : (up || "#/");
+    if (t === LAST) t = BACK.length ? BACK.pop() : "#/";
+    SKIP_PUSH = true;
+    location.hash = t;
+  }
   function route() {
     var h = (location.hash || "#/").replace(/^#\/?/, "");
+    trackBack("#/" + h);
     var p = h.split("/").filter(Boolean);
     var out;
     stopTimers();
@@ -806,6 +825,12 @@
   $("#siteSearch").addEventListener("search", function () { runSearch(this.value); });
   document.addEventListener("click", function (e) { if (!e.target.closest(".searchbar")) $("#searchResults").hidden = true; });
   window.addEventListener("hashchange", route);
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".backbtn");
+    if (!b) return;
+    e.preventDefault();
+    goBack(b.getAttribute("data-up"));
+  });
   route();
 
   if ("serviceWorker" in navigator) {
