@@ -9,6 +9,35 @@
   } catch (e) { }
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var page = $("#main");
+
+  /* Prashn (MCQ sets) ab js/questions.js me hain — ye file tabhi download hoti
+     hai jab koi MCQ/quiz/exam page khule. Notes wale pages par iski zaroorat nahi,
+     isliye pehla load chhota rehta hai. */
+  var QLOADED = !!DRAFT, QWANTED = false, QFAILED = false;
+  function mergeQ() {
+    var QS = window.QUESTIONS || {};
+    D.subjects.forEach(function (s) { s.sets = QS[s.id] || []; });
+  }
+  function ensureQ() {
+    if (QLOADED) return true;
+    if (window.QUESTIONS) { mergeQ(); QLOADED = true; return true; }
+    if (!QWANTED) {
+      QWANTED = true;
+      var sc = document.createElement("script");
+      sc.src = "js/questions.js";
+      sc.onload = function () { mergeQ(); QLOADED = true; buildIndex(); route(); refreshSearch(); };
+      sc.onerror = function () { QFAILED = true; route(); };
+      document.body.appendChild(sc);
+    }
+    return false;
+  }
+  /* MCQ wale page: file aane tak placeholder, load fail ho to saaf message */
+  function qGate() {
+    if (ensureQ()) return null;
+    return QFAILED
+      ? '<div class="notice">Prashn wali file <code>js/questions.js</code> load nahi ho payi. Internet dekhiye ya page refresh kijiye.</div>'
+      : '<div class="notice">Prashn load ho rahe hain…</div>';
+  }
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var strip = function (h) { var t = document.createElement("div"); t.innerHTML = h; return t.textContent || ""; };
   var store = {
@@ -19,7 +48,11 @@
   var subj = function (id) { for (var i = 0; i < D.subjects.length; i++) if (D.subjects[i].id === id) return D.subjects[i]; return null; };
   var allSets = function () { var r = []; D.subjects.forEach(function (s) { s.sets.forEach(function (t) { r.push({ s: s, t: t }); }); }); return r; };
   var notesOf = function (s) { return s.notes || []; };
-  var qCount = function (s) { return s.sets.reduce(function (a, t) { return a + t.qs.length; }, 0); };
+  /* sets bhari ho to asli ginti, warna data.js me rakhi hui cached ginti */
+  var setCount = function (s) { return s.sets.length || s.nsets || 0; };
+  var qCount = function (s) {
+    return s.sets.length ? s.sets.reduce(function (a, t) { return a + t.qs.length; }, 0) : (s.nq || 0);
+  };
   var iconFor = function (s, cls) { return window.iconSvg ? window.iconSvg(s.id, cls) : ""; };
 
   /* ---------- header / footer ---------- */
@@ -32,7 +65,7 @@
     if (DRAFT) {
       var bar = document.createElement("div");
       bar.className = "draftbar";
-      bar.innerHTML = '<div class="wrap"><b>DRAFT</b> Ye aapke browser ka temporary copy hai — duniya ko nahi. Publish karne ke liye <a href="admin.html">admin panel</a> se data.js download karo. <button type="button">Draft hatao (asli data.js dikho)</button></div>';
+      bar.innerHTML = '<div class="wrap"><b>DRAFT</b> Ye aapke browser ka temporary copy hai — duniya ko nahi. Publish karne ke liye <a href="admin.html">admin panel</a> se <code>data.js</code> aur <code>questions.js</code> download karo. <button type="button">Draft hatao (asli files dikho)</button></div>';
       page.parentNode.insertBefore(bar, page);
       bar.querySelector("button").onclick = function () {
         try { localStorage.removeItem("ile:draft"); } catch (e) { }
@@ -65,6 +98,7 @@
   /* ---------- search ---------- */
   var INDEX = [];
   function buildIndex() {
+    INDEX.length = 0;
     D.subjects.forEach(function (s) {
       s.notes.forEach(function (n) { INDEX.push({ k: "note", t: n.title, s: s.name, h: "#/note/" + n.id, txt: (n.title + " " + strip(n.html)).toLowerCase() }); });
       s.sets.forEach(function (t) { INDEX.push({ k: "set", t: t.title, s: s.name, h: "#/quiz/" + s.id + "/" + t.id, txt: (t.title + " " + s.name).toLowerCase() }); });
@@ -83,11 +117,16 @@
     var box = $("#searchResults");
     v = v.trim().toLowerCase();
     if (v.length < 2) { box.hidden = true; box.innerHTML = ""; return; }
+    ensureQ(); /* prashn bhi search me chahiye, isliye file mangwa lete hain */
     var hits = INDEX.filter(function (e) { return e.txt.indexOf(v) >= 0; }).slice(0, 25);
     box.innerHTML = hits.length
       ? hits.map(function (e) { return '<a href="' + e.h + '"><span class="kind">' + e.k + "</span>" + esc(e.t) + "<br><small style='color:#5c6b7a'>" + esc(e.s) + "</small></a>"; }).join("")
       : '<div class="none">Kuch nahi mila — dusra word try karo.</div>';
     box.hidden = false;
+  }
+  function refreshSearch() {
+    var sb = $("#siteSearch");
+    if (sb && !$("#searchResults").hidden && sb.value.trim().length >= 2) runSearch(sb.value);
   }
 
   /* ---------- shared bits ---------- */
@@ -98,7 +137,7 @@
   }
   function subjectTiles(list) {
     return '<div class="grid">' + list.map(function (s) {
-      var n = notesOf(s).length, q = qCount(s), sets = s.sets.length;
+      var n = notesOf(s).length, q = qCount(s), sets = setCount(s);
       if (!n && !sets) return "";
       return '<a class="tile" href="#/subject/' + s.id + '">' + iconFor(s) + "<b>" + esc(s.name) + "</b>" +
         '<span class="hi">' + esc(s.hi) + "</span>" +
@@ -115,7 +154,7 @@
 
   P.home = function () {
     var notes = D.subjects.reduce(function (a, s) { return a + notesOf(s).length; }, 0);
-    var sets = D.subjects.reduce(function (a, s) { return a + s.sets.length; }, 0);
+    var sets = D.subjects.reduce(function (a, s) { return a + setCount(s); }, 0);
     var qs = D.subjects.reduce(function (a, s) { return a + qCount(s); }, 0);
     var ic = function (k) { return window.iconSvg ? window.iconSvg(k, "inline") : ""; };
     return '<div class="hero"><div><h1>' + esc(D.site.name) + " — " + esc(D.site.tag) + "</h1>" +
@@ -171,35 +210,38 @@
   };
 
   P.questions = function () {
+    var g = qGate();
     return crumb([["#/", "Home"], ["#/questions", "Questions"]]) + "<h1>Questions (MCQ practice)</h1>" +
       '<p class="lead">Kisi bhi set par click karo — turant jawab ke sath practice hoti hai, score save rehta hai.</p>' +
-      allSets().map(function (x) {
+      (g || allSets().map(function (x) {
         return '<div class="tile" style="margin-bottom:8px"><b>' + esc(x.t.title) + '</b><span class="hi">' + esc(x.s.name) + " · " + x.t.qs.length + " prashn</span>" +
           '<div class="btnrow"><a class="btn ghost" href="#/practice/' + x.s.id + "/" + x.t.id + '">Practice</a><a class="btn" href="#/quiz/' + x.s.id + "/" + x.t.id + '">Quiz khelo</a></div></div>';
-      }).join("");
+      }).join(""));
   };
 
   P.quizzes = function () {
+    var g = qGate();
     return crumb([["#/", "Home"], ["#/quizzes", "Quizzes"]]) + "<h1>Quizzes</h1>" +
       '<p class="lead">Har quiz me 10 prashn, 30 second per question. Score phone me save hota hai.</p>' +
-      '<div class="grid">' + D.subjects.filter(function (s) { return s.sets.length; }).map(function (s) {
+      '<div class="grid">' + (g ? "" : D.subjects.filter(function (s) { return setCount(s); }).map(function (s) {
         return '<a class="tile" href="#/quiz/' + s.id + '">' + iconFor(s) + "<b>" + esc(s.name) + "</b>" +
-          '<span class="meta"><i>' + qCount(s) + " MCQ</i><i>" + s.sets.length + " sets</i></span></a>";
-      }).join("") + "</div>";
+          '<span class="meta"><i>' + qCount(s) + " MCQ</i><i>" + setCount(s) + " sets</i></span></a>";
+      }).join("")) + "</div>" + (g || "");
   };
 
   P.subject = function (id) {
     var s = subj(id); if (!s) return notFound();
+    var g = qGate();
     return crumb([["#/", "Home"], ["#/notes", "Subjects"], ["#/subject/" + s.id, s.name]]) +
       "<h1>" + iconFor(s, "inline") + esc(s.name) + ' <small style="font-size:15px;color:#5c6b7a;font-weight:400">' + esc(s.hi) + "</small></h1>" +
       '<div class="btnrow">' +
-      (s.sets.length ? '<a class="btn" href="#/quiz/' + s.id + '">Quiz khelo</a><a class="btn ghost" href="#/practice/' + s.id + '">MCQ practice</a>' : "") + "</div>" +
+      (setCount(s) ? '<a class="btn" href="#/quiz/' + s.id + '">Quiz khelo</a><a class="btn ghost" href="#/practice/' + s.id + '">MCQ practice</a>' : "") + "</div>" +
       (notesOf(s).length ? "<h2>Notes</h2>" + notesOf(s).map(function (n) {
         return '<div class="note"><a href="#/note/' + n.id + '">' + esc(n.title) + "</a><small>" + esc(n.hi) + " · " + n.mins + " min</small></div>";
       }).join("") : "") +
-      (s.sets.length ? "<h2>MCQ Sets</h2>" + s.sets.map(function (t) {
+      (setCount(s) ? "<h2>MCQ Sets</h2>" + (s.sets.length ? s.sets.map(function (t) {
         return '<div class="note"><a href="#/practice/' + s.id + "/" + t.id + '">' + esc(t.title) + "</a><small>" + t.qs.length + " prashn · " + examName(t.exam) + "</small></div>";
-      }).join("") : "");
+      }).join("") : g) : "");
   };
   function examName(id) { for (var i = 0; i < D.exams.length; i++) if (D.exams[i].id === id) return D.exams[i].name; return "General"; }
 
@@ -216,6 +258,7 @@
   /* ---------- practice (reveal answer) ---------- */
   P.practice = function (sid, tid) {
     var s = subj(sid); if (!s) return notFound();
+    var g = qGate(); if (g) return crumb([["#/", "Home"], ["#/subject/" + sid, s.name], ["#/practice/" + sid, "Practice"]]) + g;
     var sets = tid ? s.sets.filter(function (t) { return t.id === tid; }) : s.sets;
     if (!sets.length) return notFound();
     var html = crumb([["#/", "Home"], ["#/subject/" + sid, s.name], ["#/practice/" + sid, "Practice"]]) + "<h1>" + esc(sets[0].title) + "</h1>" +
@@ -249,6 +292,7 @@
   var Q = null;
   P.quiz = function (sid, tid) {
     var s = subj(sid); if (!s) return notFound();
+    var g = qGate(); if (g) return crumb([["#/", "Home"], ["#/quizzes", "Quizzes"], ["#/quiz/" + sid, s.name]]) + g;
     if (!tid) {
       return crumb([["#/", "Home"], ["#/subject/" + sid, s.name], ["#/quiz/" + sid, "Quiz"]]) + "<h1>" + esc(s.name) + " — Quiz</h1>" +
         '<div class="grid wide">' + s.sets.map(function (t) {
@@ -322,20 +366,23 @@
 
   /* ---------- exams ---------- */
   P.exams = function () {
+    var g = qGate();
     return crumb([["#/", "Home"], ["#/exams", "Exams"]]) + "<h1>Exam-wise Test Series</h1>" +
-      '<p class="lead">Har exam ke liye alag page — usse juda MCQ set yahin filter ho jayega.</p><div class="grid">' +
+      '<p class="lead">Har exam ke liye alag page — usse juda MCQ set yahin filter ho jayega.</p>' + (g || '<div class="grid">' +
       D.exams.map(function (e) {
         var n = allSets().filter(function (x) { return x.t.exam === e.id; }).length;
         return '<a class="tile" href="#/exam/' + e.id + '"><b>' + esc(e.name) + '</b><span class="hi">' + esc(e.hi) + '</span><span class="meta"><i>' + n + " sets</i></span></a>";
-      }).join("") + "</div>";
+      }).join("") + "</div>");
   };
   P.exam = function (id) {
     var e = null; D.exams.forEach(function (x) { if (x.id === id) e = x; });
     if (!e) return notFound();
-    var mine = allSets().filter(function (x) { return x.t.exam === id; });
+    var g = qGate();
     var html = crumb([["#/", "Home"], ["#/exams", "Exams"], ["#/exam/" + id, e.name]]) + "<h1>" + esc(e.name) + "</h1><p class=\"lead\">" + esc(e.hi) + "</p>";
+    if (g) return html + g;
+    var mine = allSets().filter(function (x) { return x.t.exam === id; });
     if (!mine.length) {
-      return html + '<div class="notice">Is exam ke liye abhi set Jude nahi gaye. <a href="#/questions">Saare MCQ sets</a> dekho, ya <code>js/data.js</code> me set ke sath <code>exam: "' + id + '"</code> daal do — ye page apne aap bhar jayega.</div>';
+      return html + '<div class="notice">Is exam ke liye abhi set Jude nahi gaye. <a href="#/questions">Saare MCQ sets</a> dekho, ya <code>js/questions.js</code> me set ke sath <code>exam: "' + id + '"</code> daal do — ye page apne aap bhar jayega.</div>';
     }
     return html + mine.map(function (x) {
       return '<div class="tile" style="margin-bottom:8px"><b>' + esc(x.t.title) + '</b><span class="hi">' + esc(x.s.name) + " · " + x.t.qs.length + " prashn</span>" +
@@ -343,14 +390,15 @@
     }).join("");
   };
   P.testseries = function () {
+    var g = qGate();
     return crumb([["#/", "Home"], ["#/testseries", "Test Series"]]) + "<h1>Test Series</h1>" +
-      '<p class="lead">Free test series — poore syllabus par timed quiz. Naya set add karne ke liye <code>js/data.js</code> me <code>sets</code> daikhun.</p>' +
-      '<div class="grid wide">' + allSets().map(function (x) {
+      '<p class="lead">Free test series — poore syllabus par timed quiz. Naya set add karne ke liye <code>js/questions.js</code> me <code>sets</code> daikhun.</p>' +
+      (g || '<div class="grid wide">' + allSets().map(function (x) {
         return '<a class="tile" href="#/quiz/' + x.s.id + "/" + x.t.id + '"><b>' + esc(x.t.title) + '</b><span class="hi">' + esc(x.s.name) + "</span><span class=\"meta\"><i>" + x.t.qs.length + " prashn</i><i>" + examName(x.t.exam) + "</i></span></a>";
       }).join("") + "</div>" +
-      "<h2>Subject-wise mixed quiz</h2><div class=\"grid\">" + D.subjects.filter(function (s) { return s.sets.length; }).map(function (s) {
+      "<h2>Subject-wise mixed quiz</h2><div class=\"grid\">" + D.subjects.filter(function (s) { return setCount(s); }).map(function (s) {
         return '<a class="tile" href="#/quiz/' + s.id + '/mix">' + iconFor(s) + "<b>" + esc(s.name) + " Mixed</b><span class=\"meta\"><i>" + qCount(s) + " MCQ</i></span></a>";
-      }).join("") + "</div>";
+      }).join("") + "</div>");
   };
 
   /* ---------- districts ---------- */
@@ -486,7 +534,7 @@
   /* ---------- static pages ---------- */
   P.about = function () {
     return "<h1>About Us</h1><p>" + esc(D.site.name) + " ek free study portal hai — Rajasthan aur India ki competitive exam (REET, Patwar, Constable, CET, RAS, Grade-3 Teacher) ki taiyari ke liye notes, MCQ aur quiz.</p>" +
-      "<h2>Kaise kaam karta hai</h2><ul><li>Sara content <code>js/data.js</code> me hai — code se kuch lena-dena nahi.</li><li>Quiz browser me chalta hai; score phone me save hota hai, kisi server par nahi jata.</li><li>Site offline bhi khul sakti hai (PWA install karne par).</li></ul>" +
+      "<h2>Kaise kaam karta hai</h2><ul><li>Notes aur baaki content <code>js/data.js</code> me, MCQ sets <code>js/questions.js</code> me hai — code se kuch lena-dena nahi.</li><li>Quiz browser me chalta hai; score phone me save hota hai, kisi server par nahi jata.</li><li>Site offline bhi khul sakti hai (PWA install karne par).</li></ul>" +
       "<h2>Data policy</h2><p>Yahan ka likha hua content original hai. Factual data (jile, divisions, rajya, samvidhan ke anuched) sarkari aur jan-sansmrutik strot se liya gaya hai.</p>" +
       '<p><a class="btn ghost" href="#/contact">Contact</a> <a class="btn ghost" href="#/privacy">Privacy</a></p>';
   };

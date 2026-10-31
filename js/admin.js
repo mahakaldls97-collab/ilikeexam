@@ -1,8 +1,8 @@
 /* =============================================================
    I LIKE EXAM — admin.js : content panel (no server, no build)
-   - js/data.js ka load hua DATA edit hota hai
+   - js/data.js (notes) + js/questions.js (MCQ sets) ka load hua data edit hota hai
    - har badlav turant browser ke localStorage me "draft" ban jaata hai
-   - Publish tab se naya data.js download hota hai (wahi asli publish step)
+   - Publish tab se data.js aur questions.js download hote hain (wahi asli publish step)
    ============================================================= */
 (function () {
   "use strict";
@@ -26,7 +26,12 @@
         if (j && j.subjects && j.site) return j;
       }
     } catch (e) { }
-    return clone(window.DATA || { site: {}, subjects: [], districts: [], states: [], exams: [], tricks: [], calendar: {}, tools: [], flashcards: {}, crossword: { clues: [] }, jokes: [] });
+    var d = clone(window.DATA || { site: {}, subjects: [], districts: [], states: [], exams: [], tricks: [], calendar: {}, tools: [], flashcards: {}, crossword: { clues: [] }, jokes: [] });
+    /* prashn alag file (js/questions.js) me hain — yahan jod lete hain taaki
+       panel me ek hi object dikhe, aur export par dono files ban jayein */
+    var QS = window.QUESTIONS || {};
+    d.subjects.forEach(function (s) { s.sets = QS[s.id] || []; });
+    return d;
   }
 
   function saveNow() {
@@ -36,7 +41,7 @@
       localStorage.setItem(DRAFT_KEY, JSON.stringify(D));
       if (st) { st.textContent = "Auto-save hua " + new Date().toLocaleTimeString() + " (is browser me)"; st.className = "adm-status saved"; }
     } catch (e) {
-      if (st) { st.textContent = "SAVE FAIL — draft bahut bara ho gaya. Publish tab se data.js download karke backup lo."; st.className = "adm-status warn"; }
+      if (st) { st.textContent = "SAVE FAIL — draft bahut bara ho gaya. Publish tab se data.js + questions.js download karke backup lo."; st.className = "adm-status warn"; }
     }
     counts();
   }
@@ -728,13 +733,36 @@
   }
 
   /* ---------- Publish ---------- */
+  /* Panel ek hi object dikhata hai, par publish par do files banti hain:
+     data.js  = notes, map, exams, tricks (hamesha load hoti hai)
+     questions.js = MCQ sets (MCQ/quiz/exam page khule tabhi load hoti hai) */
+  function splitData() {
+    var QS = {}, content = clone(D);
+    content.subjects.forEach(function (s) {
+      var sets = s.sets || [];
+      if (sets.length) QS[s.id] = sets;
+      s.sets = [];
+      s.nsets = sets.length;
+      s.nq = sets.reduce(function (a, t) { return a + (t.qs || []).length; }, 0);
+    });
+    return { content: content, qs: QS };
+  }
+  function ser(obj, head, name) {
+    return head + "window." + name + " = " + JSON.stringify(obj, null, 1).replace(/</g, "\\u003c") + ";\n";
+  }
   function buildFile() {
-    var json = JSON.stringify(D, null, 1).replace(/</g, "\\u003c");
-    return "/* ============================================================\n" +
+    return ser(splitData().content,
+      "/* ============================================================\n" +
       "   I LIKE EXAM — content store (admin panel se bani)\n" +
-      "   Yahi ek file hai jisme sara data rehta hai.\n" +
-      "   ============================================================ */\n" +
-      "window.DATA = " + json + ";\n";
+      "   Notes, jile, rajya, exams, tricks — prashn js/questions.js me hain.\n" +
+      "   ============================================================ */\n", "DATA");
+  }
+  function buildQFile() {
+    return ser(splitData().qs,
+      "/* ============================================================\n" +
+      "   I LIKE EXAM — MCQ sets (admin panel se bani)\n" +
+      "   Site ye file tabhi download karti hai jab koi MCQ/quiz/exam page khule.\n" +
+      "   ============================================================ */\n", "QUESTIONS");
   }
   function runChecks() {
     var res = [], t = tally();
@@ -766,11 +794,20 @@
     var qtxt = {}, qdup = 0;
     D.subjects.forEach(function (s) { s.sets.forEach(function (x) { x.qs.forEach(function (q) { var k = String(q.q).trim().toLowerCase(); if (!k) return; if (qtxt[k]) qdup++; qtxt[k] = 1; }); }); });
     res.push([qdup ? "warn" : "ok", qdup ? qdup + " prashn ka same text do baar likha hai" : "Koi dohraya hua prashn nahi"]);
-    var bytes = new Blob([buildFile()]).size;
-    res.push([bytes > 1572864 ? "warn" : "ok", "File ka size: <b>" + (bytes / 1024).toFixed(0) + " KB</b>" + (bytes > 1572864 ? " — 1.5 MB se upar, phone par pehla load dheema hoga (baad me offline ho jayega)" : " — phone ke liye aaram")]);
-    try { new Function("window", buildFile()); res.push(["ok", "Data.js ki script valid hai — site khulegi"]); }
-    catch (e) { res.push(["bad", "Data.js me syntax dikkat: " + esc(e.message)]); }
-    return { res: res, bytes: bytes, tally: t };
+    var f1 = buildFile(), f2 = buildQFile();
+    var bytes = new Blob([f1]).size, qbytes = new Blob([f2]).size;
+    res.push([bytes > 1572864 ? "warn" : "ok", "<b>data.js</b> (notes waghera): <b>" + (bytes / 1024).toFixed(0) + " KB</b>" + (bytes > 1572864 ? " — 1.5 MB se upar, notes ke files baantne padenge" : " — phone ke liye aaram")]);
+    res.push([qbytes > 1572864 ? "warn" : "ok", "<b>questions.js</b> (prashn): <b>" + (qbytes / 1024).toFixed(0) + " KB</b>" + (qbytes > 1572864 ? " — 1.5 MB se upar, subject-wise files me baantna hoga (mujhe bataiye)" : " — sirf MCQ page khulne par download hoti hai")]);
+    try {
+      var w1 = {}; new Function("window", f1)(w1);
+      var w2 = {}; new Function("window", f2)(w2);
+      var back = 0;
+      (w1.DATA.subjects || []).forEach(function (s) { back += ((w2.QUESTIONS || {})[s.id] || []).length; });
+      if (back !== tally().sets) throw new Error("prashn files me wapas nahi mile (" + back + "/" + tally().sets + " sets)");
+      res.push(["ok", "Dono files valid script hain — site khulegi, prashn sahi jagah pahunchenge"]);
+    }
+    catch (e) { res.push(["bad", "File me syntax dikkat: " + esc(e.message)]); }
+    return { res: res, bytes: bytes, qbytes: qbytes, tally: t };
   }
   function tabPublish() {
     var k = runChecks();
@@ -788,14 +825,22 @@
     k.res.forEach(function (r) { ul.insertAdjacentHTML("beforeend", '<li class="' + r[0] + '">' + r[1] + "</li>"); });
     chk.appendChild(ul); main.appendChild(chk);
 
-    var act = card("1 · Naya data.js download karo");
-    act.insertAdjacentHTML("beforeend", '<p class="adm-lead">Neeche ke button se <code>data.js</code> file aapke computer ke Download folder me aa jayegi.</p>');
+    var act = card("1 · Dono nayi files download karo");
+    act.insertAdjacentHTML("beforeend", '<p class="adm-lead">Data do files me banta hai — <b>donoi</b> download karo. Button dabate hi file aapke computer ke Download folder me aa jayegi.</p>');
     var r1 = document.createElement("div"); r1.className = "adm-btnrow";
-    r1.appendChild(btn("⬇ data.js download karo", "", function () {
+    function guard() {
       var bad = k.res.filter(function (x) { return x[0] === "bad"; }).length;
-      if (bad && !confirm(bad + " gambhir dikkat hain. Fir bhi file banaayein?")) return;
+      return !bad || confirm(bad + " gambhir dikkat hain. Fir bhi file banaayein?");
+    }
+    r1.appendChild(btn("⬇ data.js download karo (" + (k.bytes / 1024).toFixed(0) + " KB)", "", function () {
+      if (!guard()) return;
       download("data.js", buildFile(), "text/javascript");
-      flashStatus("data.js download ho gayi — ab step 2 aur 3", "saved");
+      flashStatus("data.js download ho gayi — ab questions.js bhi lo", "saved");
+    }));
+    r1.appendChild(btn("⬇ questions.js download karo (" + (k.qbytes / 1024).toFixed(0) + " KB)", "", function () {
+      if (!guard()) return;
+      download("questions.js", buildQFile(), "text/javascript");
+      flashStatus("questions.js download ho gayi — ab step 2", "saved");
     }));
     r1.appendChild(btn("Backup (poora draft) download", "ghost", function () { download("ile-draft.json", JSON.stringify(D, null, 1), "application/json"); }));
     var fi = document.createElement("input"); fi.type = "file"; fi.accept = ".js,.json"; fi.style.display = "none";
@@ -806,9 +851,16 @@
         var txt = String(fr.result);
         try {
           var w = {}; new Function("window", txt)(w);
-          if (!w.DATA || !w.DATA.subjects) throw new Error("Is file me DATA.subjects nahi mila");
+          var src = w.DATA || (w.QUESTIONS ? null : null);
+          if (!src) throw new Error("Is file me DATA nahi mila — ye questions.js ho sakti hai, usme sirf prashn hote hain");
+          if (!src.subjects) throw new Error("Is file me DATA.subjects nahi mila");
           if (!confirm("Is file ka data panel me load ho jayega aur abhi ka draft badal dega. Theek?")) return;
-          D = w.DATA; if (!ui.subj || !subject()) ui.subj = D.subjects[0].id;
+          D = src;
+          /* sets alag file me rehte hain — load ki gayi file me khali ho to
+             browser me already khuli questions.js se jod lete hain */
+          var QS = w.QUESTIONS || window.QUESTIONS || {};
+          D.subjects.forEach(function (s) { if (!s.sets || !s.sets.length) s.sets = QS[s.id] || []; });
+          if (!ui.subj || !subject()) ui.subj = D.subjects[0].id;
           saveNow(); buildTabs(); render();
         } catch (e) { alert("File padhi nahi ja saki: " + e.message); }
       };
@@ -819,19 +871,21 @@
     act.appendChild(r1);
     main.appendChild(act);
 
-    var st = card("2 · Purani file badlo");
+    var st = card("2 · Site ke folder me dono files badlo");
     st.insertAdjacentHTML("beforeend", '<ol class="adm-steps">' +
       "<li>Apne site ke folder me <code>js</code> naam ka folder kholo.</li>" +
-      "<li>Usme purani <code>data.js</code> hataa do aur Download folder se nayi <code>data.js</code> rakh do (naam same hi rahega).</li>" +
+      "<li>Purani <code>data.js</code> hataa kar nayi <code>data.js</code> rakh do.</li>" +
+      "<li>Usi tarah <code>questions.js</code> bhi rakh do (prashn isi me hain).</li>" +
       "<li><b>admin.html aur admin.css/admin.js ko folder me mat chhodo</b> agar public site par nahi chahiye — ya inhe <code>gh8x-admin</code> jaisa naam de do.</li></ol>");
     main.appendChild(st);
 
     var st2 = card("3 · Publish / deploy");
     st2.insertAdjacentHTML("beforeend", '<ol class="adm-steps">' +
-      "<li>GitHub par jaakar <code>js/data.js</code> upload/commit karo (purani wali overwrite).</li>" +
-      "<li>Render/Vercel apne aap nayi baar site banayega (2–3 minute).</li>" +
+      "<li>GitHub par repo kholo → <code>js</code> folder → <b>Add file → Upload files</b> → nayi <code>data.js</code> chuno → <b>Replace</b> → <b>Commit changes</b>.</li>" +
+      "<li>Yahi dobara karke <code>questions.js</code> upload karo → Commit.</li>" +
+      "<li>GitHub Pages aur Vercel apne aap nayi baar site bana denge (30–60 second).</li>" +
       "<li>Site khol kar <b>Ctrl+Shift+R</b> dabao — nahi to purana data dikhega.</li></ol>" +
-      '<div class="adm-note">Ye teen kadam aapko khud karne hain — aapke account ka password main mangta nahi aur na hi kiya ja sakta hai. Panel ka kaam data.js taiyar karke dena tak hi hai.</div>');
+      '<div class="adm-note">Ye kadam aapko khud karne hain — aapke account ka password main mangta nahi aur na hi kiya ja sakta hai. Panel ka kaam files taiyar karke dena tak hi hai.</div>');
     main.appendChild(st2);
 
     var dn = card("Draft (aapke browser ka temporary copy)");
