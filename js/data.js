@@ -135,7 +135,7 @@ window.DATA = {
    ],
    "sets": [],
    "nsets": 1,
-   "nq": 10
+   "nq": 4
   },
   {
    "id": "reasoning",
