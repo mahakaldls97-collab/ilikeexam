@@ -1,6 +1,6 @@
 /* Admin panel ka "Publish" button yahan aata hai.
-   Do files (js/data.js + js/questions.js) ek hi commit me GitHub par daalta hai —
-   iske baad Vercel khud site bana deta hai.
+   Do files (js/data.js + js/questions.js) aur panel me chuni gayi photos
+   ek hi commit me GitHub par daalte hain — iske baad Vercel khud site bana deta hai.
    Token sirf server ke environment me rehta hai (GH_TOKEN), browser me kabhi nahi jaata. */
 
 var crypto = require("crypto");
@@ -14,6 +14,22 @@ var ALLOWED = {
   "js/data.js": "window.DATA",
   "js/questions.js": "window.QUESTIONS"
 };
+
+/* photos: sirf images/ folder, sirf asli photo files, itni hi maatra */
+var IMG_MAX_COUNT = 12;
+var IMG_MAX_BYTES = 1500000;
+var IMG_MAX_TOTAL = 3000000;
+var IMG_PATH = /^images\/[a-z0-9][a-z0-9._-]{0,90}\.(?:jpg|jpeg|png|gif|webp)$/;
+var B64 = /^[A-Za-z0-9+/]+={0,2}$/;
+
+function isPhoto(buf) {
+  if (buf.length < 13) return false;
+  var h = buf.slice(0, 4).toString("latin1");
+  if (h[0] === "\xff" && h[1] === "\xd8" && h[2] === "\xff") return true;
+  if (h === "\x89PNG") return true;
+  if (h === "GIF8") return true;
+  return h === "RIFF" && buf.slice(8, 12).toString("latin1") === "WEBP";
+}
 
 var HITS = {};
 
@@ -93,6 +109,21 @@ module.exports = async function (req, res) {
     if (txt.indexOf(ALLOWED[p]) < 0) return out(400, { ok: false, error: p + " me " + ALLOWED[p] + " nahi mila — galat file lag rahi hai" });
   }
 
+  var imgs = (body.images && typeof body.images === "object" && !Array.isArray(body.images)) ? body.images : {};
+  var imgNames = Object.keys(imgs).sort();
+  if (imgNames.length > IMG_MAX_COUNT) return out(413, { ok: false, error: "Ek saath " + IMG_MAX_COUNT + " se zyada photo nahi bhej sakte" });
+  var photoBytes = 0;
+  for (var n2 = 0; n2 < imgNames.length; n2++) {
+    var ip = imgNames[n2], b64 = String(imgs[ip]);
+    if (!IMG_PATH.test(ip)) return out(400, { ok: false, error: "Photo ka path galat: " + ip });
+    if (b64.length % 4 || !B64.test(b64)) return out(400, { ok: false, error: ip + " ka data kharab hai" });
+    var buf = Buffer.from(b64, "base64");
+    if (!isPhoto(buf)) return out(400, { ok: false, error: ip + " file photo nahi hai" });
+    if (buf.length > IMG_MAX_BYTES) return out(413, { ok: false, error: ip + " bahut badi photo hai (1.5 MB se zyada)" });
+    photoBytes += buf.length;
+    if (photoBytes > IMG_MAX_TOTAL) return out(413, { ok: false, error: "Photo ka total size bahut zyada hai — pehle publish karo" });
+  }
+
   try {
     var ref = await gh(token, "/repos/" + REPO + "/git/ref/heads/" + BRANCH);
     var parentSha = ref.object.sha;
@@ -107,10 +138,19 @@ module.exports = async function (req, res) {
       });
       tree.push({ path: path, mode: "100644", type: "blob", sha: blob.sha });
     }
+    for (var m2 = 0; m2 < imgNames.length; m2++) {
+      var ipath = imgNames[m2];
+      var iblob = await gh(token, "/repos/" + REPO + "/git/blobs", {
+        content: String(imgs[ipath]),
+        encoding: "base64"
+      });
+      tree.push({ path: ipath, mode: "100644", type: "blob", sha: iblob.sha });
+    }
 
     var newTree = await gh(token, "/repos/" + REPO + "/git/trees", { base_tree: parent.tree.sha, tree: tree });
     var commit = await gh(token, "/repos/" + REPO + "/git/commits", {
-      message: "Publish from admin panel — " + new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC",
+      message: "Publish from admin panel — " + new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC" +
+        (imgNames.length ? " (+" + imgNames.length + " photo)" : ""),
       tree: newTree.sha,
       parents: [parentSha]
     });
@@ -120,6 +160,7 @@ module.exports = async function (req, res) {
       ok: true,
       commit: commit.sha.slice(0, 7),
       files: names,
+      photos: imgNames,
       bytes: names.map(function (n) { return Buffer.byteLength(files[n], "utf8"); })
     });
   } catch (e) {
