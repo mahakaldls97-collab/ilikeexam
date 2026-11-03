@@ -68,6 +68,7 @@ label.adm-l{display:block;font-size:11.5px;font-weight:800;letter-spacing:.04em;
 .adm-rt h2{font-size:19px;margin:18px 0 6px}
 .adm-rt h3{font-size:16.5px;margin:16px 0 5px;color:var(--blue-d)}
 .adm-rt p{margin:8px 0}
+.adm-rt img{display:block;max-width:100%;height:auto;margin:12px 0;border:1px solid var(--line);border-radius:var(--r-s)}
 .adm-rt ul,.adm-rt ol{padding-left:22px;margin:8px 0}
 .adm-rt .box{background:linear-gradient(180deg,#f7fafd,#eff4fb);border:1px solid var(--line);border-left:4px solid var(--blue);padding:11px 13px;margin:12px 0;border-radius:0 var(--r-s) var(--r-s) 0}
 .adm-rt .notice{background:linear-gradient(180deg,#f8fbff,#eef4fb);border:1px solid var(--line);border-left:4px solid var(--orange);padding:11px 13px;margin:12px 0;border-radius:0 var(--r-s) var(--r-s) 0}
