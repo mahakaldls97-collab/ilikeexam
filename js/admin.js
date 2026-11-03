@@ -94,13 +94,93 @@
   /* ---------------- HTML sanitizer (paste + save) ---------------- */
   var KEEP = { P: 1, UL: 1, OL: 1, LI: 1, B: 1, I: 1, U: 1, BR: 1, H2: 2, H3: 2, H4: 2, DL: 1, DT: 1, DD: 1, TABLE: 1, THEAD: 1, TBODY: 1, TR: 1, TH: 1, TD: 1, SUP: 1, SUB: 1, CODE: 1, SMALL: 1 };
   var MAP = { H1: "h3", H5: "h3", H6: "h3", STRONG: "b", EM: "i", STRIKE: "s", FONT: "span", SECTION: "div", ARTICLE: "div", MAIN: "div", HEADER: "div", FOOTER: "div", BLOCKQUOTE: "div", SPAN: "span", DIV: "div" };
-  var DROP = { IMG: 1, SVG: 1, VIDEO: 1, AUDIO: 1, IFRAME: 1, OBJECT: 1, EMBED: 1, SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, FORM: 1, INPUT: 1, BUTTON: 1, SELECT: 1, TEXTAREA: 1, CANVAS: 1, NOSCRIPT: 1, PICTURE: 1, SOURCE: 1, IFRAME: 1 };
+  var DROP = { SVG: 1, VIDEO: 1, AUDIO: 1, IFRAME: 1, OBJECT: 1, EMBED: 1, SCRIPT: 1, STYLE: 1, LINK: 1, META: 1, FORM: 1, INPUT: 1, BUTTON: 1, SELECT: 1, TEXTAREA: 1, CANVAS: 1, NOSCRIPT: 1, PICTURE: 1, SOURCE: 1 };
   var CLS = { box: 1, notice: 1, kv: 1 };
 
   function safeHref(h) {
     h = String(h || "").trim();
     if (/^(https?:|mailto:|#|\/)/i.test(h) && !/^javascript:/i.test(h)) return h;
     return "";
+  }
+  /* chitra sirf apni-site path ya https URL se — data: URL data.js phola dega */
+  function safeImgSrc(h) {
+    h = String(h || "").trim();
+    if (/^\//i.test(h) && !/^\/\//i.test(h)) return h;
+    if (/^https:\/\//i.test(h)) return h;
+    return "";
+  }
+
+  /* ---------- nayi photos: browser me base64, publish par GitHub ke images/ folder me ----------
+     note ke html me sirf /images/naam.jpg rehta hai (data.js chhota rahe),
+     asli photo localStorage["ile:img"] me — publish hote hi yahan se hat jaati hai. */
+  var IMG_KEY = "ile:img";
+  function imgStore() { try { return JSON.parse(localStorage.getItem(IMG_KEY)) || {}; } catch (e) { return {}; } }
+  function imgPut(path, dataUrl) {
+    var m = imgStore(); m[path] = dataUrl;
+    try { localStorage.setItem(IMG_KEY, JSON.stringify(m)); return true; }
+    catch (e) { flashStatus("Photo browser me save nahi hui (jagah khatam) — Publish dabao ya chhoti photo lo", "warn"); return false; }
+  }
+  function imgDrop(paths) {
+    var m = imgStore(); paths.forEach(function (p) { delete m[p]; });
+    try { localStorage.setItem(IMG_KEY, JSON.stringify(m)); } catch (e) { }
+  }
+  /* jo path abhi sirf browser me hain unka preview dikha do */
+  function paintImgs(root) {
+    if (!root) return;
+    var m = imgStore();
+    Array.prototype.forEach.call(root.querySelectorAll("img"), function (im) {
+      var p = im.getAttribute("src");
+      if (p && m[p]) { im.setAttribute("data-imgpath", p); im.src = m[p]; }
+    });
+  }
+  function imgSlug(name) {
+    var s = String(name || "").replace(/\.[a-z0-9]+$/i, "").toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 30);
+    return s || "chitra";
+  }
+  /* photo ko chhota karke (max 1150 px) base64 me badalna — data.js aur repo dono ke liye zaroori */
+  function compressImage(file, cb) {
+    var U = window.URL || window.webkitURL, obj = U.createObjectURL(file), im = new Image();
+    im.onload = function () {
+      U.revokeObjectURL(obj);
+      var sc = Math.min(1, 1150 / im.naturalWidth, 1400 / im.naturalHeight);
+      var w = Math.max(1, Math.round(im.naturalWidth * sc)), h = Math.max(1, Math.round(im.naturalHeight * sc));
+      var cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+      var cx = cv.getContext("2d");
+      cx.fillStyle = "#fff"; cx.fillRect(0, 0, w, h);
+      cx.drawImage(im, 0, 0, w, h);
+      var out = "", ext = "jpg";
+      if (file.type === "image/png") {
+        var png = cv.toDataURL("image/png");
+        if (png.length < 900000) { out = png; ext = "png"; }
+      }
+      cb(null, out || cv.toDataURL("image/jpeg", 0.85), ext);
+    };
+    im.onerror = function () { U.revokeObjectURL(obj); cb("Ye photo padhi nahi ja saki"); };
+    im.src = obj;
+  }
+  function addPhoto(file, insert) {
+    if (!file || !/^image\//i.test(file.type || "")) { flashStatus("Sirf photo ki file chuno (jpg / png / webp)", "bad"); return; }
+    compressImage(file, function (err, dataUrl, ext) {
+      if (err) { flashStatus(err, "bad"); return; }
+      var name = "/images/" + imgSlug(file.name) + "-" + Math.random().toString(36).slice(2, 6) + "." + ext;
+      imgPut(name, dataUrl);
+      var alt = imgSlug(file.name).replace(/-/g, " ");
+      insert('<img data-imgpath="' + name + '" src="' + dataUrl + '" alt="' + alt + '">');
+      flashStatus("Photo lag gayi — Publish dabate hi site par bhi aa jayegi", "saved");
+    });
+  }
+  /* data.js me jitni bhi nayi photo ka path hai, unka base64 publish ke liye */
+  function pendingImages(dataTxt) {
+    var m = imgStore(), out = {}, paths = [], bytes = 0;
+    Object.keys(m).forEach(function (p) {
+      if (dataTxt.indexOf(p) < 0) return;
+      var b = String(m[p]).split(",")[1] || "";
+      bytes += b.length;
+      out[p.replace(/^\//, "")] = b;
+      paths.push(p);
+    });
+    return { images: out, paths: paths, bytes: bytes, count: paths.length };
   }
   function sanitize(html) {
     var host = document.createElement("div");
@@ -112,12 +192,22 @@
         if (c.nodeType === 3) { out.appendChild(document.createTextNode(c.nodeValue.replace(/\u00a0/g, " "))); continue; }
         if (c.nodeType !== 1) continue;
         var tag = c.tagName.toUpperCase();
-        if (DROP[tag]) { if (tag === "IMG") dropped.img++; else dropped.other++; continue; }
+        if (DROP[tag]) { dropped.other++; continue; }
         if (tag === "A") {
           var href = safeHref(c.getAttribute("href"));
           if (!href) { walk(c, out); continue; }
           var a = document.createElement("a"); a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer";
           walk(c, a); out.appendChild(a); continue;
+        }
+        if (tag === "IMG") {
+          var pth = c.getAttribute("data-imgpath");
+          var src = safeImgSrc(pth || c.getAttribute("src"));
+          if (!src) { dropped.img++; continue; }
+          var im = document.createElement("img");
+          im.src = src;
+          im.alt = String(c.getAttribute("alt") || "").slice(0, 140);
+          im.loading = "lazy";
+          out.appendChild(im); continue;
         }
         var keepTag = KEEP[tag] ? tag.toLowerCase() : (MAP[tag] || null);
         if (tag === "S" || tag === "STRIKE") keepTag = "s";
@@ -153,15 +243,37 @@
       ["notice", "Khaas tip", "ins", '<div class="notice">Yahan tip likho.</div>'],
       ["kv", "Key : Value table", "ins", '<dl class="kv"><dt>Label</dt><dd>Value</dd><dt>Label 2</dt><dd>Value 2</dd></dl>'],
       ["tbl", "Table (3 khana)", "ins", "<table><tr><th>Naam</th><th>Hal</th><th>Tafsil</th></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>"],
+      ["img", "Chitra", "img", ""],
       ["a", "Link", "link", ""], ["clean", "Format hatao", "cmd", "removeFormat"]
     ];
     host.innerHTML = '<div class="adm-bar"></div><div class="adm-rt" contenteditable="true" spellcheck="false"></div>' +
-      '<p class="adm-hint">Word, PDF ya kisi bhi website se copy karke yahan paste kar do — khud saaf ho jayega. Chitra (image) paste nahi honge, sirf likhai.</p>';
+      '<p class="adm-hint">Word, PDF ya kisi bhi website se copy karke yahan paste kar do — khud saaf ho jayega. Photo beech me daalne ke liye cursor rakh kar <b>Chitra</b> dabao, phir phone/PC se photo chuno.</p>';
     var bar = host.querySelector(".adm-bar"), rt = host.querySelector(".adm-rt");
     rt.innerHTML = value || "";
+    paintImgs(rt);
+    var picker = document.createElement("input");
+    picker.type = "file"; picker.accept = "image/*"; picker.style.display = "none";
+    /* photo wahin ghusani hai jahan cursor hai — dialog me jaate waqt selection kho na jaye */
+    var savedRange = null;
+    function saveSel() {
+      var s = window.getSelection();
+      if (s && s.rangeCount && rt.contains(s.getRangeAt(0).commonAncestorContainer)) savedRange = s.getRangeAt(0).cloneRange();
+    }
+    function insertAtCursor(html) {
+      rt.focus();
+      if (savedRange) { var s = window.getSelection(); s.removeAllRanges(); s.addRange(savedRange); }
+      document.execCommand("insertHTML", false, html);
+      emit();
+    }
+    picker.onchange = function () {
+      var f = picker.files && picker.files[0];
+      picker.value = "";
+      if (f) addPhoto(f, insertAtCursor);
+    };
+    bar.appendChild(picker);
     tools.forEach(function (t) {
       var b = document.createElement("button"); b.type = "button"; b.textContent = t[1]; b.title = t[1];
-      b.onmousedown = function (e) { e.preventDefault(); };
+      b.onmousedown = function (e) { e.preventDefault(); saveSel(); };
       b.onclick = function () {
         rt.focus();
         try {
@@ -172,6 +284,7 @@
             var u = prompt("Link ka URL (https://…):", "https://");
             if (u && safeHref(u)) document.execCommand("createLink", false, u);
           }
+          else if (t[2] === "img") { picker.click(); return; }
         } catch (e) { }
         emit();
       };
@@ -180,13 +293,19 @@
     function emit() {
       var s = sanitize(rt.innerHTML);
       onChange(s.html);
-      if (s.dropped.img) flashStatus(s.dropped.img + " image hataya gaya (site text-only hai)", "warn");
+      if (s.dropped.img) flashStatus(s.dropped.img + " photo chhoot gayi — photo ke liye <b>Chitra</b> button se chuno", "warn");
     }
     rt.addEventListener("input", emit);
     rt.addEventListener("paste", function (e) {
       e.preventDefault();
-      var html = (e.clipboardData || window.clipboardData).getData("text/html");
-      var text = (e.clipboardData || window.clipboardData).getData("text/plain");
+      var cd = e.clipboardData || window.clipboardData;
+      var pics = cd && cd.files ? Array.prototype.filter.call(cd.files, function (f) { return /^image\//i.test(f.type || ""); }) : [];
+      if (pics.length) {
+        pics.forEach(function (f) { addPhoto(f, function (html) { rt.focus(); document.execCommand("insertHTML", false, html); emit(); }); });
+        return;
+      }
+      var html = cd ? cd.getData("text/html") : "";
+      var text = cd ? cd.getData("text/plain") : "";
       var src = html ? html : (text || "").replace(/\r/g, "").split(/\n{2,}/).map(function (p) { return "<p>" + esc(p.replace(/\n/g, " ")) + "</p>"; }).join("");
       var clean = sanitize(src).html;
       document.execCommand("insertHTML", false, clean);
@@ -371,6 +490,7 @@
     prev.style.marginTop = "14px";
     var art = document.createElement("article"); art.className = "article";
     art.innerHTML = '<h1 id="admPrevTitle">' + esc(n.title || "(bina naam)") + "</h1>" + (n.html || "");
+    paintImgs(art);
     prev.appendChild(art);
     wrap.appendChild(right);
     main.appendChild(prev);
@@ -858,20 +978,27 @@
       var bad = k.res.filter(function (x) { return x[0] === "bad"; }).length;
       if (bad && !confirm(bad + " dikkat hain. Fir bhi publish karna hai?")) return;
       var dataTxt = buildFile(), qTxt = buildQFile();
+      var ph = pendingImages(dataTxt);
+      if (ph.bytes > 3600000) {
+        say("Photos " + (ph.bytes / 1048576).toFixed(1) + " MB ho gayi — pehle ye publish karo, uske baad agli photo daalo.", "bad");
+        return;
+      }
       busy = true; goBtn.disabled = true;
-      say("GitHub par bheja ja raha hai…");
+      say(ph.count ? "Bheja ja raha hai — 2 files + " + ph.count + " photo…" : "GitHub par bheja ja raha hai…");
       fetch("/api/publish", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ pass: pass, files: { "js/data.js": dataTxt, "js/questions.js": qTxt } })
+        body: JSON.stringify({ pass: pass, files: { "js/data.js": dataTxt, "js/questions.js": qTxt }, images: ph.images })
       })
         .then(function (r) {
           return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; });
         })
         .then(function (r) {
           if (!r.ok || !r.j.ok) throw new Error(r.j.error || "Server ne jawab nahi diya — /api/publish live hai ya nahi, check karo");
+          if (ph.count && !Array.isArray(r.j.photos)) throw new Error("Photo GitHub par nahi gayi — api/publish.js bhi upload karke Replace karo, phir dobara Publish dabao");
           try { localStorage.setItem(PKEY, pass); } catch (e) {}
-          say("GitHub par commit ho gaya (" + r.j.commit + "). Site build ho rahi hai…", "ok");
+          say("GitHub par commit ho gaya (" + r.j.commit + ")" + (ph.count ? ", " + ph.count + " photo bhi" : "") + ". Site build ho rahi hai…", "ok");
+          if (ph.count) imgDrop(ph.paths);
           flashStatus("Publish ho gaya — build chalu", "saved");
           var t0 = Date.now();
           (function poll() {
