@@ -10,6 +10,20 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var page = $("#main");
 
+  /* panel me chuni gayi photo abhi GitHub par nahi — draft me uska preview dikhaao */
+  var DRAFT_IMG = null;
+  function draftImgs() {
+    if (!DRAFT_IMG) { try { DRAFT_IMG = JSON.parse(localStorage.getItem("ile:img")) || {}; } catch (e) { DRAFT_IMG = {}; } }
+    return DRAFT_IMG;
+  }
+  function paintDraftImgs(root) {
+    var m = draftImgs();
+    Array.prototype.forEach.call(root.querySelectorAll("img"), function (im) {
+      var p = im.getAttribute("src");
+      if (p && m[p]) im.src = m[p];
+    });
+  }
+
   /* Prashn (MCQ sets) ab js/questions.js me hain — ye file tabhi download hoti
      hai jab koi MCQ/quiz/exam page khule. Notes wale pages par iski zaroorat nahi,
      isliye pehla load chhota rehta hai. */
@@ -62,16 +76,6 @@
     ["#/tools", "Tools"], ["#/login", "Login"]
   ];
   function buildChrome() {
-    if (DRAFT) {
-      var bar = document.createElement("div");
-      bar.className = "draftbar";
-      bar.innerHTML = '<div class="wrap"><b>DRAFT</b> Ye aapke browser ka temporary copy hai — duniya ko nahi. Publish karne ke liye <a href="admin.html">admin panel</a> se <code>data.js</code> aur <code>questions.js</code> download karo. <button type="button">Draft hatao (asli files dikho)</button></div>';
-      page.parentNode.insertBefore(bar, page);
-      bar.querySelector("button").onclick = function () {
-        try { localStorage.removeItem("ile:draft"); } catch (e) { }
-        location.reload();
-      };
-    }
     $("#mainnav").innerHTML = NAV.map(function (n) {
       return '<a href="' + n[0].trim() + '" data-nav="' + n[0].trim() + '">' + n[1] + "</a>";
     }).join("");
@@ -708,6 +712,7 @@
     else if (p[0] === "login") out = P.login();
     else out = notFound();
     page.innerHTML = out;
+    if (DRAFT) paintDraftImgs(page);
     page.classList.remove("enter");
     /* animation class rAF ke andar: paused/background tab me class hi na lage
        to page pura dikhta rahega, "opacity:0" par atakkar nahi rahega */
